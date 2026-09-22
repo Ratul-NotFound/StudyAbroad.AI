@@ -1,6 +1,15 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect } from "react";
+
+const HERO_BACKGROUNDS = [
+  "/hero-campus.jpg",
+  "/destination-usa.jpg",
+  "/library-study.jpg",
+  "/destination-switzerland.jpg",
+  "/destination-germany.jpg",
+  "/destination-singapore.jpg",
+];
 
 const AGENTS = [
   { icon: "🎓", name: "Profile Analyzer", desc: "Scores your GPA, GRE, IELTS and finds gaps instantly" },
@@ -79,6 +88,15 @@ const STEPS = [
 ];
 
 export default function HomePage() {
+  const [bgIndex, setBgIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % HERO_BACKGROUNDS.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       {/* ── Navbar ── */}
@@ -108,18 +126,42 @@ export default function HomePage() {
         paddingBottom: 110,
         position: "relative",
         overflow: "hidden",
-        backgroundImage: `linear-gradient(180deg, rgba(10,10,15,0.74) 0%, rgba(10,10,15,0.88) 60%, var(--bg-primary) 100%), url('/hero-campus.jpg')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center 30%",
-        backgroundRepeat: "no-repeat",
       }}>
+        {/* Multi-image Realistic Campus Backgrounds */}
+        {HERO_BACKGROUNDS.map((img, idx) => (
+          <div
+            key={img}
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url('${img}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center 30%",
+              opacity: bgIndex === idx ? 1 : 0,
+              transform: bgIndex === idx ? "scale(1.04)" : "scale(1)",
+              transition: "opacity 1.5s ease-in-out, transform 6s ease-out",
+              zIndex: 0,
+            }}
+          />
+        ))}
+
+        {/* Dark Vignette Overlay for Crisp Typography Legibility */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(10,10,15,0.72) 0%, rgba(10,10,15,0.88) 60%, var(--bg-primary) 100%)",
+          zIndex: 1,
+        }} />
+
         {/* Ambient subtle glow */}
         <div style={{
           position: "absolute", top: "25%", left: "50%", transform: "translate(-50%,-50%)",
           width: 800, height: 800, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
           pointerEvents: "none",
+          zIndex: 1,
         }} />
+
         <div className="container" style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
           <div style={{ marginBottom: 24 }}>
             <span className="badge badge-accent">🚀 Autonomous Study Abroad Intelligence</span>
