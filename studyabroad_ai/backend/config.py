@@ -45,8 +45,13 @@ class Settings(BaseSettings):
     llm_max_retries: int = 3
 
     # 1. Groq — FREE, fastest (275 tok/s), 30 RPM, no credit card
-    # Get key: https://console.groq.com
-    groq_api_key: str = ""
+    # Get key: https://console.groq.com (create multiple free accounts to multiply quota)
+    # Provide up to 4 Groq keys — system round-robins to multiply daily free tokens by 4x
+    groq_api_key: str = ""    # Primary key
+    groq_api_key_1: str = ""  # Key #1 (same as groq_api_key, alias)
+    groq_api_key_2: str = ""  # Key #2 — extra 14,400 req/day free
+    groq_api_key_3: str = ""  # Key #3 — extra 14,400 req/day free
+    groq_api_key_4: str = ""  # Key #4 — extra 14,400 req/day free
     groq_model: str = "llama-3.3-70b-versatile"  # Best free model on Groq
 
     # 2. Gemini — Google FREE tier (15 RPM, 1M tokens/day)
@@ -130,9 +135,19 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.allowed_origins.split(",")]
 
     @property
+    def all_groq_keys(self) -> list[str]:
+        """Return all configured Groq API keys (deduped, non-empty)."""
+        keys = []
+        for k in [self.groq_api_key, self.groq_api_key_1, self.groq_api_key_2,
+                  self.groq_api_key_3, self.groq_api_key_4]:
+            if k and k.strip() and k not in keys and k not in ("your-groq-key-here", "GROQ_API_KEY"):
+                keys.append(k.strip())
+        return keys
+
+    @property
     def has_any_llm(self) -> bool:
         """True if at least one free LLM API key is configured."""
-        return bool(self.groq_api_key or self.gemini_api_key or self.openrouter_api_key)
+        return bool(self.all_groq_keys or self.gemini_api_key or self.openrouter_api_key)
 
     class Config:
         env_file = ".env"
@@ -150,8 +165,8 @@ def get_effective_llm() -> str:
     No local models needed — all cloud-based, all free.
     Chain: Groq → Gemini → OpenRouter → OpenAI (paid last resort)
     """
-    if settings.groq_api_key:
-        return f"groq ({settings.groq_model})"
+    if settings.all_groq_keys:
+        return f"groq ({settings.groq_model}) — {len(settings.all_groq_keys)} key(s) in rotation"
     elif settings.gemini_api_key:
         return f"gemini ({settings.gemini_model})"
     elif settings.openrouter_api_key:
