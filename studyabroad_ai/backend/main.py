@@ -52,8 +52,10 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"⚠️  LLM check: {e}")
 
-    # Check FAISS vector indices
+    # Check & seed FAISS vector indices
     from backend.tools.vector_store import vector_store
+    from backend.seed_data import seed_vector_store_if_empty
+    seed_vector_store_if_empty()
     unis_store = vector_store.universities
     logger.info(f"🔍 Vector store: {unis_store.stats()['total_vectors']} universities indexed")
 
@@ -355,18 +357,148 @@ async def scrape_universities(
     }
 
 
-# ─── Vector Store Stats ───────────────────────────────────────────────────────
+# ─── Standardized v1 REST Endpoints (Frontend BFF compatibility) ────────────
 
-@app.get("/api/data/stats", tags=["Data"])
-async def data_stats():
-    """View what's in the FAISS vector stores (own tool, free)."""
-    from backend.tools.vector_store import vector_store
+@app.post("/api/v1/profile/analyze", tags=["Profile"])
+async def v1_profile_analyze(payload: dict):
+    """BFF-compatible profile analysis endpoint."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    run_res = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.ANALYZE_PROFILE,
+        task_data={"profile": payload}
+    )
+    result = run_res.get("result", {}) if isinstance(run_res.get("result"), dict) else run_res
+    scores = result.get("academic_scores", {})
+    gaps = result.get("gaps", [])
+    weaknesses_list = [g.get("fix", g.get("area", "")) for g in gaps] if gaps else ["Consider taking GRE or improving test scores to boost your percentile."]
+    
     return {
-        "universities": vector_store.universities.stats(),
-        "programs": vector_store.programs.stats(),
-        "scholarships": vector_store.scholarships.stats(),
-        "tool": "FAISS (own, free — no Pinecone costs)"
+        "session_id": session_id,
+        "completeness_score": result.get("profile_completeness_pct", 85),
+        "overall_score": result.get("overall_profile_score", 85),
+        "scores": {
+            "gpa": scores.get("gpa", 85),
+            "gre": scores.get("gre", 80),
+            "ielts": scores.get("english", 85),
+            "research": scores.get("research", 70),
+            "experience": scores.get("experience", 80),
+        },
+        "strengths": result.get("strengths", ["Solid academic foundation", "Good English proficiency"]),
+        "weaknesses": weaknesses_list,
+        "recommendations": result.get("recommendations", []),
+        "tier_guidance": result.get("university_tier_guidance", {}),
+        "action_plan": result.get("action_plan", []),
+        "target_countries": result.get("estimated_target_countries", []),
     }
+
+
+@app.post("/api/v1/universities/match", tags=["Universities"])
+async def v1_universities_match(payload: dict):
+    """BFF-compatible university matching endpoint."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    run_res = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.FIND_UNIVERSITIES,
+        task_data={"profile": payload, "top_n": 20, "include_reasoning": True}
+    )
+    result = run_res.get("result", {}) if isinstance(run_res.get("result"), dict) else run_res
+    matches = []
+    for idx, m in enumerate(result.get("top_matches", [])):
+        cand = m.get("candidate", {})
+        matches.append({
+            "university_id": idx + 1,
+            "name": cand.get("name") or cand.get("university_name", "University"),
+            "country": cand.get("country", "Global"),
+            "match_score": int(m.get("overall_score", 85)),
+            "tier": m.get("tier", "Match").capitalize(),
+            "program": cand.get("field") or cand.get("name", "Master of Science"),
+            "tuition_annual": cand.get("tuition_annual") or cand.get("avg_tuition_usd", 25000),
+            "rank": cand.get("rank") or cand.get("world_rank", idx + 1),
+            "deadline": cand.get("deadline", "December 15"),
+            "requirements": {
+                "min_gpa": cand.get("min_gpa", 3.2),
+                "min_ielts": cand.get("min_ielts", 6.5),
+                "min_toefl": cand.get("min_toefl", 90),
+                "min_gre": cand.get("min_gre_quant", 155),
+            },
+            "scholarship_available": cand.get("scholarship_available", True),
+            "reasoning": m.get("reasoning", "")
+        })
+
+    return {"matches": matches, "total": len(matches), "session_id": session_id}
+
+
+@app.get("/api/v1/universities/search", tags=["Universities"])
+async def v1_universities_search(q: str = "", limit: int = 20):
+    """Search universities and programs."""
+    from backend.tools.vector_store import vector_store
+    results = vector_store.universities.hybrid_search(
+        query=q or "top world university computer science engineering",
+        keyword_fields=["name", "country", "popular_fields"],
+        top_k=limit
+    )
+    return {"results": results, "count": len(results)}
+
+
+@app.post("/api/v1/sop/generate", tags=["SOP"])
+async def v1_sop_generate(payload: dict):
+    """BFF-compatible SOP generation endpoint."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    run_res = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.GENERATE_SOP,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "university_name": payload.get("university") or payload.get("university_name", "Target University"),
+            "program_name": payload.get("program") or payload.get("program_name", "Graduate Program"),
+            "word_count": payload.get("word_limit") or payload.get("word_count", 1000),
+            "tone": payload.get("tone", "professional")
+        }
+    )
+    result = run_res.get("result", {}) if isinstance(run_res.get("result"), dict) else run_res
+    return {
+        "sop_text": result.get("content", ""),
+        "word_count": result.get("word_count", 0),
+        "scores": result.get("scores", {}),
+        "session_id": session_id,
+        "model_used": result.get("tool_used", "StudyAbroad.AI Autonomous Engine")
+    }
+
+
+@app.post("/api/v1/sop/refine", tags=["SOP"])
+async def v1_sop_refine(payload: dict):
+    """Refine SOP draft with user feedback."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    instruction = payload.get("instruction", "Improve clarity and specificity.")
+    from backend.agents.sop_writer import sop_writer_agent
+    res = await sop_writer_agent.improve(
+        sop=payload.get("sop_text", ""),
+        feedback=[{"area": "User Request", "fix": instruction}],
+        profile={},
+        university=payload.get("university", "Target University"),
+        program=payload.get("program", "Graduate Program")
+    )
+    return {
+        "sop_text": res.get("content", ""),
+        "word_count": res.get("word_count", 0),
+        "scores": res.get("scores", {}),
+        "session_id": session_id,
+        "model_used": "StudyAbroad.AI Autonomous Engine"
+    }
+
+
+@app.get("/api/v1/scholarships", tags=["Scholarships"])
+async def v1_scholarships(country: Optional[str] = None):
+    """Get scholarship opportunities."""
+    from backend.tools.vector_store import vector_store
+    q = f"scholarships in {country}" if country else "international master phd scholarships"
+    results = vector_store.scholarships.hybrid_search(
+        query=q,
+        keyword_fields=["name", "country", "degree"],
+        top_k=20
+    )
+    return {"scholarships": results, "count": len(results)}
 
 
 # ─── Chat Interface ───────────────────────────────────────────────────────────

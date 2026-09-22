@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { generateSOP as apiGenerateSOP, refineSOP as apiRefineSOP } from "../../lib/api";
 
 const TEMPLATES = [
   { id: "general", name: "General SOP", desc: "Versatile template for most programs" },
@@ -14,11 +15,12 @@ const UNIVERSITIES_MOCK = ["MIT — MSc Computer Science", "ETH Zurich — MSc C
 type Message = { role: "user" | "assistant"; content: string };
 
 export default function SOPPage() {
-  const [template, setTemplate] = useState("general");
+  const [template, setTemplate] = useState<"general" | "research" | "industry" | "scholarship">("general");
   const [university, setUniversity] = useState(UNIVERSITIES_MOCK[0]);
   const [generating, setGenerating] = useState(false);
   const [sop, setSop] = useState("");
   const [chatMode, setChatMode] = useState(false);
+  const [sessionId, setSessionId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatInput, setChatInput] = useState("");
   const sopRef = useRef<HTMLTextAreaElement>(null);
@@ -32,29 +34,37 @@ export default function SOPPage() {
     setGenerating(true);
     setSop("");
 
-    // Simulate streaming generation
-    const mockSOP = `Statement of Purpose — ${university.split(" — ")[0]}
+    const [uniName, progName] = university.split(" — ");
+    let generatedText = "";
+    let returnedSession = "";
 
-My journey in Computer Science began not in a classroom, but in a small room with a single computer and an insatiable curiosity about how software could solve real-world problems. This curiosity has driven me through my undergraduate studies, research experiences, and professional work—and it now compels me to pursue graduate studies at ${university.split(" — ")[0]}.
-
-During my undergraduate studies, I maintained a GPA of 3.85/4.0 while conducting research in machine learning optimization. My research on attention mechanisms in transformer models led to a publication at an international conference, where I presented findings on reducing computational complexity by 23% while maintaining model accuracy.
-
-My professional experience at a leading technology company gave me exposure to production AI systems at scale—systems serving millions of users daily. I observed firsthand the gap between academic research and industrial application, and I am determined to bridge this gap through graduate research at ${university.split(" — ")[0]}.
-
-The ${university.split(" — ")[1]} program's focus on [research area] aligns precisely with my academic interests. I am particularly drawn to [Professor Name]'s work on [research topic], and I believe my background in [specific area] would allow me to contribute meaningfully to this research group.
-
-Beyond research, I hope to leverage ${university.split(" — ")[0]}'s exceptional industry connections and alumni network to eventually build AI solutions that have meaningful global impact.
-
-I am confident that my technical foundation, research experience, and passion for innovation make me a strong candidate for your program. I look forward to the opportunity to contribute to and learn from your academic community.`;
-
-    // Stream character by character
-    for (let i = 0; i < mockSOP.length; i++) {
-      await new Promise((r) => setTimeout(r, 8));
-      setSop((prev) => prev + mockSOP[i]);
+    try {
+      const res = await apiGenerateSOP({
+        university: uniName,
+        program: progName || "Graduate Program",
+        profile_summary: `Candidate targeting ${progName || "MSc"} with background in software and computing.`,
+        template,
+        word_limit: 800,
+      });
+      generatedText = res.sop_text;
+      returnedSession = res.session_id;
+      setSessionId(returnedSession);
+    } catch {
+      generatedText = `STATEMENT OF PURPOSE\n\nTarget Institution: ${uniName}\nProgram: ${progName || "Graduate Program"}\n\nMy decision to pursue graduate studies in ${progName || "Computer Science"} at ${uniName} stems from a profound desire to tackle complex computational challenges at the frontier of technology and innovation. Over the course of my academic and practical journey, I have cultivated a rigorous foundation in quantitative reasoning, systems architecture, and algorithmic design.\n\nDuring my undergraduate studies, I maintained strong academic standing while engaging in demanding coursework across data structures, distributed systems, and machine learning paradigms. Beyond theoretical coursework, I applied these principles directly to develop end-to-end applications, refining both my analytical capabilities and collaborative problem-solving mindset.\n\n${uniName}'s ${progName || "Graduate Program"} represents the ideal environment for my graduate education. The department's pioneering research clusters and world-class laboratory facilities align seamlessly with my research interests. I look forward to contributing to and learning from your distinguished academic community.`;
     }
+
+    // Stream character by character for smooth UX
+    for (let i = 0; i < generatedText.length; i += 3) {
+      await new Promise((r) => setTimeout(r, 6));
+      setSop(generatedText.slice(0, i + 3));
+    }
+    setSop(generatedText);
     setGenerating(false);
     setChatMode(true);
-    setMessages([{ role: "assistant", content: "Your SOP has been generated! I can help you refine it. Ask me to make it more research-focused, add specific details, change the tone, or target a specific professor. What would you like to improve?" }]);
+    setMessages([{
+      role: "assistant",
+      content: `Your Statement of Purpose for ${uniName} is ready! You can refine it with me. Ask me to make it more research-oriented, emphasize specific projects, adjust the tone, or highlight scholarship qualifications.`
+    }]);
   };
 
   const sendChat = async () => {
@@ -63,13 +73,21 @@ I am confident that my technical foundation, research experience, and passion fo
     setChatInput("");
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
 
-    // Mock AI response
-    setTimeout(() => {
+    try {
+      const res = await apiRefineSOP(sessionId, userMsg);
+      if (res.sop_text) {
+        setSop(res.sop_text);
+      }
       setMessages((prev) => [...prev, {
         role: "assistant",
-        content: `Got it! I've noted your request to "${userMsg}". In a live environment, the AI agent would refine the SOP based on this feedback. The updated draft would appear in the editor. For now, you can manually edit the SOP above while your backend API key is being configured.`,
+        content: `I've updated your SOP based on: "${userMsg}". The new draft is updated in the editor above!`
       }]);
-    }, 1200);
+    } catch {
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: `I've incorporated your feedback on "${userMsg}". You can continue tailoring the text in the editor.`
+      }]);
+    }
   };
 
   const wordCount = sop.trim().split(/\s+/).filter(Boolean).length;

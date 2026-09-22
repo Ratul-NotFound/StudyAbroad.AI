@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const SIDEBAR_ITEMS = [
@@ -49,6 +50,7 @@ function TierBadge({ tier }: { tier: string }) {
 }
 
 export default function DashboardPage() {
+  const pathname = usePathname();
   const [agentRunning, setAgentRunning] = useState(false);
 
   const runAgents = () => {
@@ -76,7 +78,7 @@ export default function DashboardPage() {
         </div>
         <nav style={{ flex: 1, padding: "16px 12px" }}>
           {SIDEBAR_ITEMS.map((item) => {
-            const isActive = typeof window !== "undefined" && window.location.pathname === item.href;
+            const isActive = pathname === item.href;
             return (
               <Link key={item.href} href={item.href} style={{
                 display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
