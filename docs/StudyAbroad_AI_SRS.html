@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StudyAbroad.AI — Software Requirements Specification (SRS)</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@page {
+    size: A4;
+    margin: 18mm 18mm 18mm 18mm;
+    @bottom-right {
+        content: counter(page);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    line-height: 1.65;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+}
+
+.doc-cover {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    color: #ffffff;
+    padding: 34px 30px;
+    border-radius: 12px;
+    margin-bottom: 26px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+}
+
+.doc-badge {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.25);
+    border: 1px solid #818cf8;
+    color: #c7d2fe;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.doc-cover h1 {
+    color: #ffffff !important;
+    font-size: 23px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    border-bottom: none !important;
+    padding: 0;
+    letter-spacing: -0.02em;
+}
+
+.doc-cover p {
+    color: #cbd5e1;
+    font-size: 13px;
+    margin: 0;
+    font-weight: 400;
+}
+
+.doc-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.doc-meta strong {
+    color: #e2e8f0;
+}
+
+h1 {
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #e2e8f0;
+    page-break-after: avoid;
+}
+
+h2 {
+    color: #1e3a8a;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+}
+
+h3 {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+}
+
+h4 {
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+p {
+    margin: 0 0 9px 0;
+    color: #334155;
+}
+
+ul, ol {
+    margin: 0 0 10px 0;
+    padding-left: 20px;
+    color: #334155;
+}
+
+li {
+    margin-bottom: 3.5px;
+}
+
+strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    border: 1px solid #e2e8f0;
+}
+
+pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 12px 0;
+    page-break-inside: avoid;
+    border: 1px solid #1e293b;
+}
+
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 14px 0;
+    font-size: 11.5px;
+    page-break-inside: avoid;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+th {
+    background-color: #1e293b;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid #0f172a;
+    font-size: 11.5px;
+}
+
+td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: top;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:nth-child(even) td {
+    background-color: #f8fafc;
+}
+
+blockquote {
+    border-left: 4px solid #6366f1;
+    background-color: #eef2ff;
+    color: #312e81;
+    margin: 12px 0;
+    padding: 8px 14px;
+    border-radius: 0 7px 7px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #e2e8f0;
+    margin: 20px 0;
+}
+
+.footer-note {
+    margin-top: 32px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 10px;
+    color: #94a3b8;
+    page-break-inside: avoid;
+}
+</style>
+</head>
+<body>
+    <div class="doc-cover">
+        <div class="doc-badge">ENTERPRISE TECHNICAL SPECIFICATION (IEEE 830)</div>
+        <h1>StudyAbroad.AI — Software Requirements Specification (SRS)</h1>
+        <p>IEEE 830 Architecture, Data Models, Multi-Agent Orchestration & Security</p>
+        <div class="doc-meta">
+            <span><strong>System:</strong> StudyAbroad.AI Platform</span>
+            <span><strong>Architecture:</strong> 12 Autonomous Agents</span>
+            <span><strong>Distribution:</strong> Confidential Client Copy</span>
+        </div>
+    </div>
+    
+    <div class="doc-content">
+        <p>﻿# SOFTWARE REQUIREMENTS SPECIFICATION (SRS)</p>
+<h2>StudyAbroad.AI — Autonomous Study Abroad Intelligence Platform</h2>
+<p><strong>Document Information</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Document Title</td>
+<td>Software Requirements Specification</td>
+</tr>
+<tr>
+<td>Project Name</td>
+<td>StudyAbroad.AI</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Date</td>
+<td>September 2026</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Draft — Awaiting Approval</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Table of Contents</h2>
+<ol>
+<li>Introduction</li>
+<li>Overall Description</li>
+<li>System Features and Functional Requirements</li>
+<li>Non-Functional Requirements</li>
+<li>External Interface Requirements</li>
+<li>AI Agent Specifications</li>
+<li>Data Requirements</li>
+<li>Security Requirements</li>
+<li>Constraints and Assumptions</li>
+<li>Appendix</li>
+</ol>
+<hr />
+<h2>1. Introduction</h2>
+<h3>1.1 Purpose</h3>
+<p>This SRS defines the complete functional and non-functional requirements for StudyAbroad.AI, a fully autonomous AI-powered study abroad intelligence platform. Intended for the development team, AI engineers, project managers, and stakeholders.</p>
+<h3>1.2 Scope</h3>
+<p>StudyAbroad.AI is a web and mobile application that automates the entire study abroad journey for international students from initial research through university application, visa processing, and post-arrival integration. The system employs 12 autonomous AI agents, a multi-source RAG pipeline, and a full-stack web + mobile application.</p>
+<p><strong>The system WILL:</strong><br />
+- Autonomously scrape and maintain data from 600+ universities across 20+ countries<br />
+- Monitor 100+ scholarship sources in real time<br />
+- Generate personalized, voice-preserved application documents<br />
+- Guide students through visa applications with country-specific knowledge<br />
+- Provide career ROI analytics and post-graduation employment data<br />
+- Support students from research phase through post-arrival life abroad</p>
+<p><strong>The system WILL NOT:</strong><br />
+- Guarantee admission to any university<br />
+- Submit applications on behalf of students without explicit consent<br />
+- Store or share personal student data without GDPR-compliant consent<br />
+- Provide legally binding immigration advice</p>
+<h3>1.3 Definitions and Abbreviations</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SRS</td>
+<td>Software Requirements Specification</td>
+</tr>
+<tr>
+<td>RAG</td>
+<td>Retrieval-Augmented Generation</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td>Large Language Model</td>
+</tr>
+<tr>
+<td>HITL</td>
+<td>Human-in-the-Loop</td>
+</tr>
+<tr>
+<td>SOP</td>
+<td>Statement of Purpose</td>
+</tr>
+<tr>
+<td>LOR</td>
+<td>Letter of Recommendation</td>
+</tr>
+<tr>
+<td>IELTS</td>
+<td>International English Language Testing System</td>
+</tr>
+<tr>
+<td>GRE</td>
+<td>Graduate Record Examination</td>
+</tr>
+<tr>
+<td>GMAT</td>
+<td>Graduate Management Admission Test</td>
+</tr>
+<tr>
+<td>PR</td>
+<td>Permanent Residency</td>
+</tr>
+<tr>
+<td>OPT</td>
+<td>Optional Practical Training (USA)</td>
+</tr>
+<tr>
+<td>PGWP</td>
+<td>Post-Graduation Work Permit (Canada)</td>
+</tr>
+<tr>
+<td>PSW</td>
+<td>Post-Study Work (UK)</td>
+</tr>
+<tr>
+<td>AES</td>
+<td>Advanced Encryption Standard</td>
+</tr>
+<tr>
+<td>GDPR</td>
+<td>General Data Protection Regulation</td>
+</tr>
+<tr>
+<td>JWT</td>
+<td>JSON Web Token</td>
+</tr>
+<tr>
+<td>SSR</td>
+<td>Server-Side Rendering</td>
+</tr>
+<tr>
+<td>SEO</td>
+<td>Search Engine Optimization</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>Continuous Integration / Continuous Deployment</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Overall Description</h2>
+<h3>2.1 Product Perspective</h3>
+<p>StudyAbroad.AI is a standalone SaaS platform integrating multiple external data sources and AI services:<br />
+- Next.js frontend (web)<br />
+- React Native mobile application (iOS + Android)<br />
+- FastAPI backend (REST APIs)<br />
+- Multi-agent AI layer (LangGraph + CrewAI)<br />
+- Multiple databases (PostgreSQL, ChromaDB/Pinecone, Redis, TimescaleDB)</p>
+<h3>2.2 Product Functions (High-Level)</h3>
+<ul>
+<li>FR-1: User registration, authentication, profile management</li>
+<li>FR-2: Autonomous university data scraping and indexing</li>
+<li>FR-3: Autonomous scholarship hunting and monitoring</li>
+<li>FR-4: AI-powered university and program recommendation</li>
+<li>FR-5: Voice-preserved application document generation</li>
+<li>FR-6: Professor outreach email automation</li>
+<li>FR-7: Multi-channel deadline tracking and alerting</li>
+<li>FR-8: Country-specific visa guidance and simulation</li>
+<li>FR-9: Career ROI and employment outcome analytics</li>
+<li>FR-10: Scholarship scam detection and validation</li>
+<li>FR-11: Financial document preparation assistance</li>
+<li>FR-12: Post-arrival wellbeing and integration support</li>
+<li>FR-13: 24/7 AI counselor with persistent memory</li>
+<li>FR-14: Human-in-the-Loop trust escalation</li>
+<li>FR-15: Multi-language platform support (10 languages)</li>
+</ul>
+<h3>2.3 User Classes</h3>
+<p><strong>Primary: International Student (Prospective)</strong><br />
+- Age 18-35, applying for Masters/PhD/Bachelors programs abroad<br />
+- Moderate technical literacy; uses smartphones and web<br />
+- Pain points: research overload, document prep, scholarships, visa confusion</p>
+<p><strong>Secondary: Parent/Sponsor</strong><br />
+- Read-only view of student's application progress</p>
+<p><strong>Tertiary: Human Counselor (Expert)</strong><br />
+- Reviews AI-escalated complex queries</p>
+<p><strong>Admin: Platform Administrator</strong><br />
+- Full system access, scraping monitoring, user management</p>
+<h3>2.4 Operating Environment</h3>
+<ul>
+<li>Web: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+</li>
+<li>Mobile: iOS 14+, Android 10+</li>
+<li>Deployment: Vercel (frontend), Railway (backend + agents)</li>
+<li>Screen Sizes: 320px (mobile) to 4K (desktop)</li>
+</ul>
+<h3>2.5 Design Constraints</h3>
+<ul>
+<li>Must operate within free/low-cost API tiers for MVP</li>
+<li>Web scraping must comply with robots.txt and rate limits</li>
+<li>LLM token consumption must be optimized</li>
+<li>Platform must be GDPR-compliant from day one</li>
+</ul>
+<hr />
+<h2>3. System Features and Functional Requirements</h2>
+<h3>3.1 Authentication and Profile Module</h3>
+<h4>3.1.1 Registration and Auth</h4>
+<ul>
+<li>REQ-AUTH-001: Users may register via email and password</li>
+<li>REQ-AUTH-002: One-click registration via Google OAuth 2.0</li>
+<li>REQ-AUTH-003: One-click registration via LinkedIn OAuth 2.0 with profile import</li>
+<li>REQ-AUTH-004: Email verification link sent upon registration</li>
+<li>REQ-AUTH-005: Password must be minimum 8 chars, 1 uppercase, 1 number, 1 special char</li>
+<li>REQ-AUTH-006: JWT session management with 7-day expiry</li>
+<li>REQ-AUTH-007: Refresh token support for seamless session renewal</li>
+</ul>
+<h4>3.1.2 Student Profile Builder</h4>
+<ul>
+<li>REQ-PROFILE-001: Multi-step profile wizard with progress indicator</li>
+</ul>
+<p>Academic Section:<br />
+- REQ-PROFILE-002: Collect highest degree, institution, graduation year, GPA/grade<br />
+- REQ-PROFILE-003: Accept GPA in all formats: 4.0 scale, 10-point, percentage, CGPA, UK classification<br />
+- REQ-PROFILE-004: Auto-convert any GPA format to standardized 4.0 scale<br />
+- REQ-PROFILE-005: Allow transcript upload (PDF/JPG/PNG); AI auto-extracts GPA and grades via OCR + LLM<br />
+- REQ-PROFILE-006: Collect test scores: IELTS, TOEFL, GRE, GMAT, LSAT, MCAT, SAT, DELF, TestDaF<br />
+- REQ-PROFILE-007: Track planned retake dates for test improvements</p>
+<p>Personal and Financial:<br />
+- REQ-PROFILE-008: Collect nationality, study level, field of study, preferred start date<br />
+- REQ-PROFILE-009: Collect annual budget range with currency selection<br />
+- REQ-PROFILE-010: Collect preferred countries (multi-select), intake preference, program duration preference<br />
+- REQ-PROFILE-011: Collect career goals (target job title/industry post-graduation)<br />
+- REQ-PROFILE-012: Import work and education experience from LinkedIn</p>
+<p>Research Background (PhD):<br />
+- REQ-PROFILE-013: Allow research interests entry (free-text + keyword tags)<br />
+- REQ-PROFILE-014: Allow upload of published papers or research reports<br />
+- REQ-PROFILE-015: Research experience description field</p>
+<p>Profile Intelligence:<br />
+- REQ-PROFILE-016: Calculate Profile Strength Score (0-100) based on completeness and competitiveness<br />
+- REQ-PROFILE-017: Identify profile gaps with specific improvement actions<br />
+- REQ-PROFILE-018: What-If Simulator: adjust a score, see which new universities unlock<br />
+- REQ-PROFILE-019: Peer benchmark: compare profile against historical admitted student data</p>
+<hr />
+<h3>3.2 University Discovery Module</h3>
+<ul>
+<li>REQ-UNIV-001: Natural language search interface (e.g. 'affordable CS Masters in Europe under 12000 euros')</li>
+<li>REQ-UNIV-002: Parse natural language queries to extract: field, degree, country, budget, language of instruction</li>
+<li>REQ-UNIV-003: Ranked results with relevance explanations</li>
+<li>REQ-UNIV-004: Filter refinement: country, ranking, tuition, language, intake, acceptance rate, duration</li>
+<li>REQ-UNIV-005: Program-level data (specific Masters/PhD programs, not just university level)</li>
+<li>REQ-UNIV-006: Display per program: name, country, city, tuition, IELTS/GRE minimums, GPA min, deadline, acceptance rate, ranking, duration, intakes</li>
+<li>REQ-UNIV-007: Side-by-side comparison of up to 5 universities across all data fields</li>
+<li>REQ-UNIV-008: Cost of living per city (Numbeo integration)</li>
+<li>REQ-UNIV-009: Student review aggregates (Reddit, TheStudentRoom, GMAT Club)</li>
+<li>REQ-UNIV-010: Alumni employment outcomes per program</li>
+<li>REQ-UNIV-011: Safety and quality of life scores per city</li>
+<li>REQ-UNIV-012: Save universities to shortlist with notes and tags</li>
+<li>REQ-UNIV-013: Subject-specific rankings (CSRankings, Shanghai Subject)</li>
+<li>REQ-UNIV-014: Intake availability tracker (Fall/Spring/Summer/Rolling)</li>
+</ul>
+<hr />
+<h3>3.3 AI Recommendation Engine</h3>
+<ul>
+<li>REQ-REC-001: Generate personalized recommendations on profile completion</li>
+<li>REQ-REC-002: Use RAG over vectorized university database for semantic profile matching</li>
+<li>REQ-REC-003: Categorize into Dream (under 30% probability), Target (30-65%), Safety (65%+)</li>
+<li>REQ-REC-004: Display match score (0-100%) with written explanation per university</li>
+<li>REQ-REC-005: Estimate admission probability based on profile vs. university averages</li>
+<li>REQ-REC-006: Full cost-of-attendance breakdown: tuition + living + visa + travel = total annual cost</li>
+<li>REQ-REC-007: Include career ROI as a weighted ranking factor</li>
+<li>REQ-REC-008: Suggest universities student may not have considered</li>
+<li>REQ-REC-009: Recommend optimal intake based on application readiness</li>
+<li>REQ-REC-010: Auto-update recommendations when student profile changes</li>
+</ul>
+<hr />
+<h3>3.4 Scholarship and Funding Hub</h3>
+<ul>
+<li>REQ-SCHOL-001: Personalized scholarship list matched to profile, field, nationality, target countries</li>
+<li>REQ-SCHOL-002: Pre-check eligibility before displaying (filter ineligible scholarships)</li>
+<li>REQ-SCHOL-003: Display per scholarship: name, coverage, eligible nationalities, GPA requirements, deadline, competition level, official URL</li>
+<li>REQ-SCHOL-004: Prioritize hidden gem scholarships (less competitive, high relevance)</li>
+<li>REQ-SCHOL-005: Show scholarship success rate per profile type</li>
+<li>REQ-SCHOL-006: Funding gap calculator: total cost minus all matched scholarships</li>
+<li>REQ-SCHOL-007: Part-time work regulations per country (max hours, average wages)</li>
+<li>REQ-SCHOL-008: Student loan comparison by country (lenders, rates, moratoriums)</li>
+<li>REQ-SCHOL-009: Flag potentially fraudulent scholarships</li>
+<li>REQ-SCHOL-010: Scholarship negotiation guide and email templates</li>
+<li>REQ-SCHOL-011: Anonymized scholarship essay bank for reference</li>
+<li>REQ-SCHOL-012: Push/email alerts when new matching scholarships open</li>
+<li>REQ-SCHOL-013: TA/RA funded position finder within target programs</li>
+</ul>
+<hr />
+<h3>3.5 Document Preparation Suite</h3>
+<p>Voice Preservation System:<br />
+- REQ-DOC-001: 10-question story-prompt session to capture student writing style<br />
+- REQ-DOC-002: Extract vocabulary level, sentence structure, tone, narrative style from responses<br />
+- REQ-DOC-003: All generated documents reflect captured voice profile</p>
+<p>Statement of Purpose:<br />
+- REQ-DOC-004: Unique SOP per university + program + professor combination<br />
+- REQ-DOC-005: Incorporates: why this university, why this program, academic background, career goals<br />
+- REQ-DOC-006: Enforces word limits per university requirements (500-1000 words typically)<br />
+- REQ-DOC-007: Quality score on 5 dimensions: Clarity, Specificity, Motivation, University Fit, Uniqueness (0-10 each)<br />
+- REQ-DOC-008: Actionable improvement suggestions per dimension<br />
+- REQ-DOC-009: One-click re-tailoring from one university to another in under 60 seconds</p>
+<p>Other Documents:<br />
+- REQ-DOC-010: Personal Statement (UK/European style)<br />
+- REQ-DOC-011: Research Proposal (PhD): title, background, questions, methodology, timeline<br />
+- REQ-DOC-012: LOR draft templates for professors/employers<br />
+- REQ-DOC-013: LOR request email generator<br />
+- REQ-DOC-014: Academic CV builder (academic format, not corporate ATS)<br />
+- REQ-DOC-015: Diversity and Inclusion Statement (US universities)<br />
+- REQ-DOC-016: Scholarship-specific essays per scholarship prompt<br />
+- REQ-DOC-017: Waitlist Appeal Letter generator<br />
+- REQ-DOC-018: Deferral Request Letter generator</p>
+<p>Quality Assurance:<br />
+- REQ-DOC-019: Plagiarism check with similarity score on all documents<br />
+- REQ-DOC-020: AI-detection score check (target below 40% AI probability)<br />
+- REQ-DOC-021: Grammar and clarity API check</p>
+<p>Document Vault:<br />
+- REQ-DOC-022: Central vault for all student documents (upload, store, organize)<br />
+- REQ-DOC-023: Supported formats: PDF, DOCX, JPG, PNG (max 50MB per file)<br />
+- REQ-DOC-024: Version history for last 10 versions per document<br />
+- REQ-DOC-025: Share document via secure link with mentor, parent, counselor<br />
+- REQ-DOC-026: All vault documents encrypted with AES-256 at rest</p>
+<hr />
+<h3>3.6 Application Tracking Module</h3>
+<ul>
+<li>REQ-APP-001: Kanban tracker with stages: Research, Drafting, Submitted, Under Review, Interview, Waitlisted, Offered, Accepted, Rejected</li>
+<li>REQ-APP-002: Each university card shows: stage, next deadline, match score, document completion status</li>
+<li>REQ-APP-003: University-specific document checklist (what to submit, format, portal links)</li>
+<li>REQ-APP-004: Application fee tracker and total spend calculator</li>
+<li>REQ-APP-005: Offer Letter Analyzer: AI extracts and explains conditions, scholarships, enrollment deadlines</li>
+<li>REQ-APP-006: Multi-Offer Comparison: financial breakdown of 2+ offers side by side</li>
+<li>REQ-APP-007: Admission Interview Prep: mock interview with AI feedback per question</li>
+<li>REQ-APP-008: Auto-generated application timeline working backwards from each deadline</li>
+<li>REQ-APP-009: Application success probability per university based on profile + documents</li>
+</ul>
+<hr />
+<h3>3.7 Deadline Watcher Module</h3>
+<ul>
+<li>REQ-DL-001: Track all deadlines: application, scholarship, financial aid, housing, visa, post-admission immigration</li>
+<li>REQ-DL-002: Alerts via: in-app notification, email, WhatsApp (optional), Telegram (optional)</li>
+<li>REQ-DL-003: Google Calendar and Outlook Calendar sync</li>
+<li>REQ-DL-004: Weekly Monday task list: top 5 priority tasks this week</li>
+<li>REQ-DL-005: Smart priority ordering by urgency and impact</li>
+<li>REQ-DL-006: Reminder schedule: 30 days, 14 days, 7 days, 3 days, 1 day, day-of alerts</li>
+<li>REQ-DL-007: Custom reminder frequency settings</li>
+<li>REQ-DL-008: Countdown timers displayed on dashboard for all active deadlines</li>
+</ul>
+<hr />
+<h3>3.8 Visa and Immigration Module</h3>
+<ul>
+<li>REQ-VISA-001: Country-specific visa roadmaps for: USA F-1, UK Student Visa, Germany Studienvisum, Canada Study Permit, Australia Visa 500, Netherlands MVV, and 10+ others</li>
+<li>REQ-VISA-002: Personalized document checklist per visa type and home country combination</li>
+<li>REQ-VISA-003: Bank balance calculator using official country formula and current thresholds</li>
+<li>REQ-VISA-004: Financial sponsorship letter templates</li>
+<li>REQ-VISA-005: Embassy appointment booking guidance and processing time estimates</li>
+<li>REQ-VISA-006: Visa Interview Mock Coach: AI plays visa officer, evaluates answers, gives feedback</li>
+<li>REQ-VISA-007: Visa Rejection Recovery: identify likely rejection reason, create appeal or reapplication plan</li>
+<li>REQ-VISA-008: Post-study immigration guides: OPT/H-1B, PSW, PGWP, EU Blue Card, PR pathways</li>
+<li>REQ-VISA-009: Immigration policy change alerts for target countries</li>
+</ul>
+<hr />
+<h3>3.9 Career ROI Module</h3>
+<ul>
+<li>REQ-ROI-001: Employment outcomes per program: median salary 1/3/5yr, top employers, placement rate, internship availability</li>
+<li>REQ-ROI-002: ROI score: salary boost / tuition cost = years to break even</li>
+<li>REQ-ROI-003: Country job market health score per field</li>
+<li>REQ-ROI-004: Best country for your field comparison tool</li>
+<li>REQ-ROI-005: Career ROI as weighted factor in university recommendations</li>
+<li>REQ-ROI-006: Job board filtered by visa work eligibility</li>
+</ul>
+<hr />
+<h3>3.10 AI Counselor Module</h3>
+<ul>
+<li>REQ-CHAT-001: Persistent chat interface accessible from any page</li>
+<li>REQ-CHAT-002: Full access to student's profile, shortlist, documents, and application history as context</li>
+<li>REQ-CHAT-003: Answers questions about universities, scholarships, visas, documents, careers, finances</li>
+<li>REQ-CHAT-004: Persistent conversation memory across sessions</li>
+<li>REQ-CHAT-005: Responds in student's preferred language (10 languages)</li>
+<li>REQ-CHAT-006: Displays confidence level and cites sources for factual claims</li>
+<li>REQ-CHAT-007: Flags low-confidence answers and offers human expert escalation</li>
+<li>REQ-CHAT-008: Human expert response delivered within 24 hours for escalated queries</li>
+</ul>
+<hr />
+<h3>3.11 Financial Documentation Module</h3>
+<ul>
+<li>REQ-FIN-001: Bank balance calculation per student's visa type, home country, target country</li>
+<li>REQ-FIN-002: Bank Statement Preparation Guide customized per home country banking system</li>
+<li>REQ-FIN-003: Financial sponsorship declaration letter templates</li>
+<li>REQ-FIN-004: Funding gap calculator: total cost minus scholarships and savings</li>
+<li>REQ-FIN-005: Education loan comparison: lenders, interest rates, moratoriums, repayment</li>
+<li>REQ-FIN-006: Currency exchange planning guidance</li>
+</ul>
+<hr />
+<h3>3.12 Post-Arrival Life Abroad Module</h3>
+<ul>
+<li>REQ-LIFE-001: Pre-Departure Checklist customized per destination country</li>
+<li>REQ-LIFE-002: First 30/60/90 Day Plan for each country</li>
+<li>REQ-LIFE-003: Cultural Adaptation Guide per destination country</li>
+<li>REQ-LIFE-004: Banking Setup Guide per country</li>
+<li>REQ-LIFE-005: Verified student housing integration (scam detection applied)</li>
+<li>REQ-LIFE-006: Community connector: same home country + same university students</li>
+<li>REQ-LIFE-007: Connect students in same program and intake year</li>
+<li>REQ-LIFE-008: Mental health and counseling resources per university</li>
+<li>REQ-LIFE-009: Anonymous weekly wellbeing check-in with stress detection</li>
+<li>REQ-LIFE-010: Part-time job board filtered by visa work hour allowances</li>
+<li>REQ-LIFE-011: Post-graduation immigration filing deadline tracker (OPT, PGWP, PSW)</li>
+</ul>
+<hr />
+<h3>3.13 Professor Outreach Module</h3>
+<ul>
+<li>REQ-PROF-001: Professor database: name, department, research interests, recent publications, grants, lab openings, email, profile URL</li>
+<li>REQ-PROF-002: Semantic matching: student research background vs professor research</li>
+<li>REQ-PROF-003: Rank professors by research alignment score and funding probability</li>
+<li>REQ-PROF-004: Personalized cold outreach email referencing specific professor paper or grant</li>
+<li>REQ-PROF-005: 3-email follow-up sequence if no reply after 7 and 14 days</li>
+<li>REQ-PROF-006: Track email status: drafted / sent / replied / interview scheduled</li>
+<li>REQ-PROF-007: Research statement tailored to each professor's lab</li>
+</ul>
+<hr />
+<h3>3.14 Scam Detection Module</h3>
+<ul>
+<li>REQ-SCAM-001: Validate all scholarship URLs against whitelist of official scholarship domains</li>
+<li>REQ-SCAM-002: Flag scholarships requiring application fees, banking details, or with no verifiable sponsor</li>
+<li>REQ-SCAM-003: University accreditation verification against Ministry of Education lists</li>
+<li>REQ-SCAM-004: Verify This feature: student pastes any URL or email; system outputs legitimacy score</li>
+<li>REQ-SCAM-005: Community-reported scam database with warnings</li>
+</ul>
+<hr />
+<h2>4. Non-Functional Requirements</h2>
+<h3>4.1 Performance</h3>
+<ul>
+<li>REQ-PERF-001: Web app initial page load under 2 seconds on 10 Mbps</li>
+<li>REQ-PERF-002: University search results under 3 seconds</li>
+<li>REQ-PERF-003: Recommendation list generated within 10 seconds of profile submission</li>
+<li>REQ-PERF-004: SOP first draft generated within 30 seconds</li>
+<li>REQ-PERF-005: Support 10,000 concurrent users without degradation</li>
+<li>REQ-PERF-006: API uptime 99.5% monthly</li>
+<li>REQ-PERF-007: Weekly scrape cycle completed within 6 hours</li>
+<li>REQ-PERF-008: Push notifications delivered within 60 seconds</li>
+</ul>
+<h3>4.2 Scalability</h3>
+<ul>
+<li>REQ-SCALE-001: Database supports up to 1 million student profiles</li>
+<li>REQ-SCALE-002: Vector database supports up to 5 million embedded chunks</li>
+<li>REQ-SCALE-003: Horizontal scaling for FastAPI backend</li>
+<li>REQ-SCALE-004: Parallelized scraping pipeline (1000+ concurrent workers)</li>
+</ul>
+<h3>4.3 Reliability</h3>
+<ul>
+<li>REQ-REL-001: Automatic retry with exponential backoff (maximum 3 retries) for failed agent tasks</li>
+<li>REQ-REL-002: Graceful degradation: show cached results if AI service unavailable</li>
+<li>REQ-REL-003: Database backups every 24 hours with 30-day retention</li>
+<li>REQ-REL-004: Recovery Time Objective (RTO): restore from backup within 4 hours</li>
+<li>REQ-REL-005: Recovery Point Objective (RPO): maximum 24 hours data loss</li>
+</ul>
+<h3>4.4 Usability</h3>
+<ul>
+<li>REQ-UX-001: New user completes profile setup within 10 minutes</li>
+<li>REQ-UX-002: Primary actions reachable within 3 clicks from dashboard</li>
+<li>REQ-UX-003: Fully responsive from 320px to 4K resolution</li>
+<li>REQ-UX-004: WCAG 2.1 Level AA accessibility compliance</li>
+<li>REQ-UX-005: Error messages in plain language (no technical jargon)</li>
+<li>REQ-UX-006: Supports 10 languages: English, Arabic, Chinese Simplified, Hindi, Bengali, French, German, Spanish, Turkish, Urdu</li>
+<li>REQ-UX-007: Interactive tooltips and walkthrough for first-time users</li>
+</ul>
+<h3>4.5 Maintainability</h3>
+<ul>
+<li>REQ-MAINT-001: All AI agent actions logged in Langfuse</li>
+<li>REQ-MAINT-002: Minimum 70% unit test coverage</li>
+<li>REQ-MAINT-003: Scraper configurations externalized to config files (not hardcoded)</li>
+<li>REQ-MAINT-004: Structured JSON logs for all API calls and errors</li>
+<li>REQ-MAINT-005: Automated deployment via GitHub Actions CI/CD</li>
+<li>REQ-MAINT-006: Sentry dashboard for real-time error tracking and alerting</li>
+</ul>
+<h3>4.6 Compliance</h3>
+<ul>
+<li>REQ-COMP-001: GDPR (EU Regulation 2016/679) compliant</li>
+<li>REQ-COMP-002: Data deletion: student data deleted within 72 hours of request</li>
+<li>REQ-COMP-003: Data export: student data exported as JSON within 24 hours</li>
+<li>REQ-COMP-004: Cookie consent banner on first visit with consent logging</li>
+<li>REQ-COMP-005: Privacy policy accessible from all pages</li>
+<li>REQ-COMP-006: No student data used for AI training without explicit opt-in consent</li>
+</ul>
+<hr />
+<h2>5. External Interface Requirements</h2>
+<h3>5.1 UI Requirements</h3>
+<ul>
+<li>Web app: Next.js 14 App Router</li>
+<li>UI components: shadcn/ui + Tailwind CSS</li>
+<li>Animations: Framer Motion</li>
+<li>Color scheme: dark mode default, light mode available</li>
+<li>Typography: Inter font (Google Fonts)</li>
+<li>Real-time: Socket.io WebSocket</li>
+</ul>
+<h3>5.2 External APIs and Services</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google Gemini 1.5 Pro</td>
+<td>Primary LLM for agent reasoning</td>
+</tr>
+<tr>
+<td>Google Gemini Flash</td>
+<td>Fast lightweight tasks</td>
+</tr>
+<tr>
+<td>Google text-embedding-004</td>
+<td>Vector embedding generation</td>
+</tr>
+<tr>
+<td>Groq</td>
+<td>Fallback LLM</td>
+</tr>
+<tr>
+<td>Crawl4AI</td>
+<td>AI-native web scraping</td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td>Dynamic JS page scraping</td>
+</tr>
+<tr>
+<td>Pinecone</td>
+<td>Production vector database</td>
+</tr>
+<tr>
+<td>ChromaDB</td>
+<td>Development vector database</td>
+</tr>
+<tr>
+<td>Twilio WhatsApp API</td>
+<td>Deadline notifications via WhatsApp</td>
+</tr>
+<tr>
+<td>Resend</td>
+<td>Transactional email delivery</td>
+</tr>
+<tr>
+<td>Cloudinary</td>
+<td>Document storage and CDN</td>
+</tr>
+<tr>
+<td>Numbeo</td>
+<td>Cost of living data</td>
+</tr>
+<tr>
+<td>Google Calendar API</td>
+<td>Deadline calendar sync</td>
+</tr>
+<tr>
+<td>LinkedIn OAuth 2.0</td>
+<td>Profile data import</td>
+</tr>
+<tr>
+<td>Google OAuth 2.0</td>
+<td>User authentication</td>
+</tr>
+<tr>
+<td>Langfuse</td>
+<td>AI agent observability</td>
+</tr>
+<tr>
+<td>LangSmith</td>
+<td>LLM evaluation and testing</td>
+</tr>
+<tr>
+<td>Sentry</td>
+<td>Error tracking</td>
+</tr>
+<tr>
+<td>PostHog</td>
+<td>Product analytics</td>
+</tr>
+</tbody>
+</table>
+<h3>5.3 Communication Requirements</h3>
+<ul>
+<li>All transit data encrypted via TLS 1.3 (HTTPS enforced)</li>
+<li>RESTful API design (FastAPI backend)</li>
+<li>WebSocket protocol via Socket.io for real-time features</li>
+<li>Message queues via Redis + Celery for internal agent communication</li>
+<li>JSON format for all API responses with consistent error structure</li>
+</ul>
+<hr />
+<h2>6. AI Agent Specifications</h2>
+<h3>6.1 Framework</h3>
+<ul>
+<li>Complex stateful workflows: LangGraph (state machine, cyclic loops, HITL checkpoints)</li>
+<li>Sequential pipelines: CrewAI (role-based assembly line agents)</li>
+<li>Hybrid: LangGraph orchestrates top-level; delegates pipeline tasks to CrewAI crews</li>
+</ul>
+<h3>6.2 Agent Execution Standards</h3>
+<ul>
+<li>REQ-AGENT-001: All executions logged: agent name, input, output, tokens, execution time, cost, errors</li>
+<li>REQ-AGENT-002: Retry logic: maximum 3 retries with exponential backoff</li>
+<li>REQ-AGENT-003: Critical decisions pass through HITL trust layer before delivery</li>
+<li>REQ-AGENT-004: Confidence scores computed and displayed with all advice</li>
+<li>REQ-AGENT-005: Sources cited for all factual claims (URL, timestamp)</li>
+</ul>
+<h3>6.3 LLM Configuration Per Agent</h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Model</th>
+<th>Temperature</th>
+<th>Framework</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UniversityScraperAgent</td>
+<td>Gemini Flash</td>
+<td>0.1</td>
+<td>CrewAI</td>
+</tr>
+<tr>
+<td>ScholarshipHunterAgent</td>
+<td>Gemini Flash</td>
+<td>0.1</td>
+<td>CrewAI</td>
+</tr>
+<tr>
+<td>RecommenderAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.3</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>DocumentCraftingAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.7</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>ProfessorOutreachAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.6</td>
+<td>CrewAI</td>
+</tr>
+<tr>
+<td>DeadlineWatcherAgent</td>
+<td>Gemini Flash</td>
+<td>0.1</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>VisaGuideAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.2</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>CounselorAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.5</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>CareerROIAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.2</td>
+<td>CrewAI</td>
+</tr>
+<tr>
+<td>ScamDetectorAgent</td>
+<td>Gemini Flash</td>
+<td>0.0</td>
+<td>Rule-based + LLM</td>
+</tr>
+<tr>
+<td>FinancialDocAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.2</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>WellbeingCompanionAgent</td>
+<td>Gemini 1.5 Pro</td>
+<td>0.6</td>
+<td>LangGraph</td>
+</tr>
+</tbody>
+</table>
+<h3>6.4 Scraping Schedule</h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Frequency</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UniversityScraperAgent</td>
+<td>Weekly (Sunday 2:00 AM UTC)</td>
+<td>Cron + manual</td>
+</tr>
+<tr>
+<td>ScholarshipHunterAgent</td>
+<td>Daily (12:00 AM UTC)</td>
+<td>Cron + manual</td>
+</tr>
+<tr>
+<td>ProfessorOutreachAgent</td>
+<td>On-demand</td>
+<td>User action</td>
+</tr>
+<tr>
+<td>CareerROIAgent</td>
+<td>Monthly (1st of month)</td>
+<td>Cron</td>
+</tr>
+<tr>
+<td>ScamDetectorAgent</td>
+<td>Real-time per new scholarship</td>
+<td>Event trigger</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>7. Data Requirements</h2>
+<h3>7.1 Core Database Entities (PostgreSQL)</h3>
+<p><strong>Users:</strong> user_id (UUID PK), email, password_hash, name, created_at, subscription_tier, preferred_language, oauth_provider</p>
+<p><strong>StudentProfiles:</strong> profile_id, user_id (FK), degree_level, field_of_study, gpa_raw, gpa_scale, gpa_converted_40, ielts_score, toefl_score, gre_score, nationality, home_country, budget_min, budget_max, preferred_countries (JSON), career_goals, research_interests, profile_strength_score</p>
+<p><strong>Universities:</strong> university_id, name, country, city, qs_ranking, the_ranking, website, accreditation_status, last_scraped_at</p>
+<p><strong>Programs:</strong> program_id, university_id (FK), name, degree_level, field, language_of_instruction, tuition_international, duration_months, gpa_minimum, ielts_minimum, gre_minimum, acceptance_rate, application_deadline_fall, application_deadline_spring, intake_available (JSON), last_scraped_at</p>
+<p><strong>Scholarships:</strong> scholarship_id, name, funding_body, coverage_type, eligible_nationalities (JSON), eligible_fields (JSON), gpa_requirement, deadline, award_amount, official_url, is_verified, is_scam_flagged, last_scraped_at</p>
+<p><strong>Applications:</strong> application_id, user_id (FK), university_id (FK), program_id (FK), status (enum), applied_at, decision_at, offer_letter_url</p>
+<p><strong>Documents:</strong> document_id, user_id (FK), document_type (enum), title, content (encrypted), university_id (FK nullable), version, plagiarism_score, ai_detection_score, quality_score, created_at</p>
+<p><strong>Deadlines:</strong> deadline_id, user_id (FK), entity_type, entity_id, deadline_date, reminder_channels (JSON), is_completed</p>
+<p><strong>Professors:</strong> professor_id, university_id (FK), name, department, research_interests (JSON), recent_publications (JSON), has_open_position, email, last_scraped_at</p>
+<p><strong>OutreachEmails:</strong> email_id, user_id (FK), professor_id (FK), subject, body (encrypted), status (enum), sent_at, replied_at, follow_up_count</p>
+<p><strong>Conversations:</strong> conversation_id, user_id (FK), agent_name, messages (JSON encrypted), created_at, updated_at</p>
+<h3>7.2 Vector Database (ChromaDB / Pinecone)</h3>
+<p><strong>university_programs collection:</strong> program_id as id, embedding of program description + requirements, metadata: university_name, country, field, tuition, gpa_min, intake</p>
+<p><strong>scholarships collection:</strong> scholarship_id as id, embedding of description + eligibility, metadata: name, deadline, coverage, eligible_countries</p>
+<p><strong>professor_profiles collection:</strong> professor_id as id, embedding of research interests + publication abstracts, metadata: university, department, email</p>
+<p><strong>visa_guides collection:</strong> guide_id as id, embedding of visa requirements, metadata: country, visa_type, last_updated</p>
+<p><strong>career_outcomes collection:</strong> program_id as id, embedding of career outcomes text, metadata: median_salary, placement_rate, top_employers</p>
+<hr />
+<h2>8. Security Requirements</h2>
+<ul>
+<li>REQ-SEC-001: All data in transit encrypted via TLS 1.3 (HTTPS enforced)</li>
+<li>REQ-SEC-002: All documents encrypted at rest using AES-256</li>
+<li>REQ-SEC-003: Database backups encrypted using AES-256</li>
+<li>REQ-SEC-004: Passwords hashed using bcrypt (minimum cost factor 12)</li>
+<li>REQ-SEC-005: JWT tokens expire after 7 days; refresh tokens after 30 days</li>
+<li>REQ-SEC-006: Rate limiting: maximum 100 API requests per minute per user</li>
+<li>REQ-SEC-007: LLM API rate limiting: maximum 20 document generations per day on free tier</li>
+<li>REQ-SEC-008: OWASP Top 10 mitigations: SQL injection prevention, XSS prevention, CSRF protection</li>
+<li>REQ-SEC-009: Admin endpoints require multi-factor authentication</li>
+<li>REQ-SEC-010: Log all authentication events (login, logout, failed attempts) with IP and timestamp</li>
+<li>REQ-SEC-011: After 5 failed login attempts: account locked for 30 minutes</li>
+<li>REQ-SEC-012: Documents accessible only by owner, explicitly invited collaborators, and admins (with audit log)</li>
+<li>REQ-SEC-013: Scraping respects robots.txt; minimum 2-second delay between requests per domain</li>
+<li>REQ-SEC-014: All API keys stored in environment variables only</li>
+</ul>
+<hr />
+<h2>9. Constraints and Assumptions</h2>
+<h3>9.1 Constraints</h3>
+<ul>
+<li>CON-001: MVP built on free-tier APIs to minimize cost</li>
+<li>CON-002: Web scraping must comply with each website's terms of service</li>
+<li>CON-003: System cannot guarantee admission outcomes; all predictions are probabilistic</li>
+<li>CON-004: Visa guidance is informational only, not legal immigration advice</li>
+<li>CON-005: LLM context window limits require chunking strategy for large university data queries</li>
+</ul>
+<h3>9.2 Assumptions</h3>
+<ul>
+<li>ASS-001: Target university websites remain publicly accessible for scraping</li>
+<li>ASS-002: Google Gemini API free tier available with sufficient quota for MVP</li>
+<li>ASS-003: Students have internet connectivity and a modern browser or mobile device</li>
+<li>ASS-004: Platform operates in English for MVP; multilingual added in Phase 7</li>
+<li>ASS-005: Initial data seed (200 universities, 500 scholarships) is sufficient for MVP launch</li>
+<li>ASS-006: Human expert counselors sourced within 3 months post-launch for HITL escalation</li>
+</ul>
+<hr />
+<h2>10. Appendix</h2>
+<h3>Appendix A: Supported Countries (Scraping Scope)</h3>
+<p>USA, UK, Canada, Germany, Australia, Netherlands, Sweden, France, Switzerland, New Zealand, Ireland, Japan, South Korea, Singapore, UAE, Finland, Denmark, Italy, Spain, Belgium</p>
+<h3>Appendix B: Supported Languages</h3>
+<p>English, Arabic, Chinese Simplified, Hindi, Bengali, French, German, Spanish, Turkish, Urdu</p>
+<h3>Appendix C: Test Score Ranges</h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Score Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IELTS</td>
+<td>0.0 - 9.0</td>
+</tr>
+<tr>
+<td>TOEFL iBT</td>
+<td>0 - 120</td>
+</tr>
+<tr>
+<td>GRE</td>
+<td>260 - 340</td>
+</tr>
+<tr>
+<td>GMAT</td>
+<td>200 - 800</td>
+</tr>
+<tr>
+<td>LSAT</td>
+<td>120 - 180</td>
+</tr>
+<tr>
+<td>MCAT</td>
+<td>472 - 528</td>
+</tr>
+<tr>
+<td>SAT</td>
+<td>400 - 1600</td>
+</tr>
+</tbody>
+</table>
+<h3>Appendix D: GPA Conversion</h3>
+<table>
+<thead>
+<tr>
+<th>Scale</th>
+<th>Excellent</th>
+<th>Good</th>
+<th>Satisfactory</th>
+<th>Pass</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.0 Scale</td>
+<td>3.7-4.0</td>
+<td>3.0-3.6</td>
+<td>2.5-2.9</td>
+<td>2.0-2.4</td>
+</tr>
+<tr>
+<td>10-Point</td>
+<td>9.0-10.0</td>
+<td>7.5-8.9</td>
+<td>6.5-7.4</td>
+<td>5.0-6.4</td>
+</tr>
+<tr>
+<td>Percentage</td>
+<td>90-100%</td>
+<td>75-89%</td>
+<td>65-74%</td>
+<td>50-64%</td>
+</tr>
+<tr>
+<td>UK Class</td>
+<td>First</td>
+<td>2:1</td>
+<td>2:2</td>
+<td>Third</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>End of Software Requirements Specification<br />
+Document: StudyAbroad.AI SRS v1.0 | Date: September 2026</p>
+    </div>
+    
+    <div class="footer-note">
+        StudyAbroad.AI — Autonomous Multi-Agent Global Education Intelligence Ecosystem • Confidential Client Document
+    </div>
+</body>
+</html>

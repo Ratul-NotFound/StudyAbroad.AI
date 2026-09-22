@@ -1,0 +1,77 @@
+# StudyAbroad.AI — Own Tools First Platform
+# Core requirements — all self-hosted, free, open-source
+
+# --- Web Framework ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+websockets==13.1
+
+# --- Database (Own, Self-Hosted) ---
+sqlalchemy==2.0.51
+alembic==1.13.2
+aiosqlite==0.22.1
+
+# --- Authentication (Own JWT, no Auth0) ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# --- Task Queue (Own Celery+Redis, no managed queues) ---
+celery==5.6.3
+redis==8.0.1
+kombu==5.6.2
+
+# --- Web Scraping (Own tools, no paid APIs) ---
+playwright==1.48.0
+beautifulsoup4==4.12.3
+httpx==0.27.2
+requests==2.32.3
+lxml==5.3.0
+
+# --- AI / LLM (Own inference first) ---
+google-generativeai==0.8.3          # Gemini free tier
+anthropic==0.36.0                   # Fallback only
+openai==1.51.0                      # Fallback only
+
+# --- Embeddings (Own, sentence-transformers — no OpenAI embeddings cost) ---
+sentence-transformers==3.1.1
+torch==2.14.0
+
+# --- Vector Search (Own FAISS — no Pinecone cost) ---
+faiss-cpu==1.15.1
+
+# --- NLP & Text Processing ---
+tiktoken==0.13.0
+markdown==3.10.2
+regex==2026.7.10
+
+# --- Document Processing (Own tools — no paid OCR APIs) ---
+pypdf==4.3.1
+python-docx==1.1.2
+Pillow==12.3.0
+
+# --- Data ---
+pandas==3.0.5
+numpy==2.4.6
+pydantic==2.9.0
+pydantic-settings==2.5.2
+
+# --- Email (Own SMTP — no SendGrid cost unless deliverability fails) ---
+# smtplib is stdlib, plus:
+aiosmtplib==3.0.1
+
+# --- Scheduling (Own Celery Beat — no managed cron) ---
+celery[beat]
+
+# --- Utilities ---
+python-dotenv==1.0.1
+tenacity==8.3.0         # Retry logic for scrapers
+colorlog==6.8.2
+rich==15.0.0
+tqdm==4.69.0
+jinja2==3.1.6
+
+# --- Testing ---
+pytest==8.3.2
+pytest-asyncio==0.24.0
+httpx==0.27.2
