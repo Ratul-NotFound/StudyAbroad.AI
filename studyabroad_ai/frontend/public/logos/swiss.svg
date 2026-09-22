@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 50" fill="none">
+  <rect x="0" y="7" width="36" height="36" rx="6" fill="#D52B1E"/>
+  <path d="M18 15v20M8 25h20" stroke="#fff" stroke-width="4.5" stroke-linecap="square"/>
+  <text x="46" y="24" font-family="'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#111">Swiss Government</text>
+  <text x="46" y="38" font-family="'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="700" fill="#D52B1E" letter-spacing="0.5">Excellence Scholarships (SERI)</text>
+</svg>
