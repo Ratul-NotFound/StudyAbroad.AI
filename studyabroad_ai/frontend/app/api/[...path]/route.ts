@@ -35,23 +35,27 @@ async function proxyRequest(req: NextRequest, pathname: string) {
   });
 }
 
-export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = "/" + params.path.join("/");
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathSegments } = await params;
+  const path = "/" + (pathSegments || []).join("/");
   return proxyRequest(req, path);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = "/" + params.path.join("/");
+export async function POST(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathSegments } = await params;
+  const path = "/" + (pathSegments || []).join("/");
   return proxyRequest(req, path);
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = "/" + params.path.join("/");
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathSegments } = await params;
+  const path = "/" + (pathSegments || []).join("/");
   return proxyRequest(req, path);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = "/" + params.path.join("/");
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path: pathSegments } = await params;
+  const path = "/" + (pathSegments || []).join("/");
   return proxyRequest(req, path);
 }
 
