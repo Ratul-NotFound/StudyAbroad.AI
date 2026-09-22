@@ -135,7 +135,27 @@ class SupervisorAgent:
             elif name == "university_scraper":
                 from backend.agents.university_scraper import university_scraper_agent
                 self._agents[name] = university_scraper_agent
-            # Additional agents registered as they're built
+            elif name == "scholarship_match":
+                from backend.agents.scholarship_match import scholarship_match_agent
+                self._agents[name] = scholarship_match_agent
+            elif name == "document_audit":
+                from backend.agents.document_audit import document_audit_agent
+                self._agents[name] = document_audit_agent
+            elif name == "email_draft":
+                from backend.agents.email_draft import email_draft_agent
+                self._agents[name] = email_draft_agent
+            elif name == "visa_guide":
+                from backend.agents.visa_guide import visa_guide_agent
+                self._agents[name] = visa_guide_agent
+            elif name == "interview_coach":
+                from backend.agents.interview_coach import interview_coach_agent
+                self._agents[name] = interview_coach_agent
+            elif name == "city_life":
+                from backend.agents.city_life import city_life_agent
+                self._agents[name] = city_life_agent
+            elif name == "career_roi":
+                from backend.agents.career_roi import career_roi_agent
+                self._agents[name] = career_roi_agent
         return self._agents.get(name)
 
     # ─── Session Management ───────────────────────────────────────────────────
@@ -241,6 +261,27 @@ class SupervisorAgent:
 
         elif task_type == TaskType.FULL_PIPELINE:
             return await self._run_full_pipeline(state, task_data)
+
+        elif task_type == TaskType.MATCH_SCHOLARSHIPS:
+            return await self._run_scholarship_matching(state, task_data)
+
+        elif task_type == TaskType.AUDIT_DOCUMENTS:
+            return await self._run_document_audit(state, task_data)
+
+        elif task_type == TaskType.GENERATE_EMAIL:
+            return await self._run_email_draft(state, task_data)
+
+        elif task_type == TaskType.VISA_GUIDE:
+            return await self._run_visa_guide(state, task_data)
+
+        elif task_type == TaskType.INTERVIEW_PREP:
+            return await self._run_interview_prep(state, task_data)
+
+        elif task_type == TaskType.CITY_LIFE_INFO:
+            return await self._run_city_life(state, task_data)
+
+        elif task_type == TaskType.CAREER_ROI:
+            return await self._run_career_roi(state, task_data)
 
         else:
             return {"message": f"Task type '{task_type.value}' — agent coming soon in next build phase"}
@@ -411,6 +452,184 @@ class SupervisorAgent:
             state.failed_agents.add(agent_name)
             raise
 
+    async def _run_scholarship_matching(self, state: AgentState, data: dict) -> dict:
+        """Run ScholarshipMatchAgent."""
+        profile = data.get("profile") or state.profile
+        agent_name = "ScholarshipMatchAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": "Searching global scholarships for your profile..."})
+        try:
+            agent = self._get_agent("scholarship_match")
+            result = await agent.match(
+                profile=profile,
+                top_n=data.get("top_n", 10),
+                country_filter=data.get("country_filter"),
+            )
+            state.update("scholarships", result.get("scholarships", []))
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            await self._broadcast(state.session_id, {"type": "agent_complete", "agent": agent_name,
+                                                       "summary": f"Found {result.get('eligible_count', 0)} eligible scholarships. Total potential: ${result.get('total_potential_funding_usd', 0):,}"})
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
+    async def _run_document_audit(self, state: AgentState, data: dict) -> dict:
+        """Run DocumentAuditAgent."""
+        profile = data.get("profile") or state.profile
+        agent_name = "DocumentAuditAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": "Auditing your document readiness..."})
+        try:
+            agent = self._get_agent("document_audit")
+            result = await agent.audit(
+                profile=profile,
+                target_countries=data.get("target_countries"),
+                existing_documents=data.get("existing_documents"),
+            )
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            await self._broadcast(state.session_id, {"type": "agent_complete", "agent": agent_name,
+                                                       "summary": f"Document readiness: {result.get('overall_readiness_pct', 0)}%. Critical gaps: {len(result.get('critical_gaps', []))}"})
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
+    async def _run_email_draft(self, state: AgentState, data: dict) -> dict:
+        """Run EmailDraftAgent."""
+        profile = data.get("profile") or state.profile
+        agent_name = "EmailDraftAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": "Drafting personalized email..."})
+        try:
+            agent = self._get_agent("email_draft")
+            email_type = data.get("email_type", "professor")
+            if email_type == "scholarship":
+                result = await agent.draft_scholarship_cover_letter(
+                    profile=profile,
+                    scholarship_name=data.get("scholarship_name", "Target Scholarship"),
+                    scholarship_country=data.get("country", "Target Country"),
+                    word_limit=data.get("word_limit", 500),
+                )
+            else:
+                result = await agent.draft_professor_email(
+                    profile=profile,
+                    professor_name=data.get("professor_name", "Professor"),
+                    professor_research=data.get("professor_research", "relevant research area"),
+                    university_name=data.get("university_name", "Target University"),
+                    program_name=data.get("program_name", "Graduate Program"),
+                )
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
+    async def _run_visa_guide(self, state: AgentState, data: dict) -> dict:
+        """Run VisaGuideAgent."""
+        profile = data.get("profile") or state.profile
+        countries = data.get("countries") or profile.get("target_countries") or ["USA"]
+        agent_name = "VisaGuideAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": f"Loading visa guide for {', '.join(countries)}..."})
+        try:
+            agent = self._get_agent("visa_guide")
+            if isinstance(countries, list):
+                results = {}
+                for c in countries[:3]:  # Max 3 at once
+                    results[c] = await agent.guide(country=c, profile=profile)
+                result = {"countries": results, "count": len(results)}
+            else:
+                result = await agent.guide(country=countries, profile=profile)
+            state.update("visa_info", result)
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
+    async def _run_interview_prep(self, state: AgentState, data: dict) -> dict:
+        """Run InterviewCoachAgent."""
+        profile = data.get("profile") or state.profile
+        agent_name = "InterviewCoachAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": "Generating personalized interview questions..."})
+        try:
+            agent = self._get_agent("interview_coach")
+            result = await agent.generate_questions(
+                profile=profile,
+                university_name=data.get("university_name", "Target University"),
+                program_name=data.get("program_name", "Graduate Program"),
+                interview_type=data.get("interview_type", "admission"),
+                num_questions=data.get("num_questions", 10),
+            )
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            await self._broadcast(state.session_id, {"type": "agent_complete", "agent": agent_name,
+                                                       "summary": f"Generated {result.get('total_questions', 0)} interview questions"})
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
+    async def _run_city_life(self, state: AgentState, data: dict) -> dict:
+        """Run CityLifeAgent."""
+        agent_name = "CityLifeAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": "Loading city cost-of-living data..."})
+        try:
+            agent = self._get_agent("city_life")
+            city = data.get("city") or (data.get("profile", {}).get("target_countries") or ["Germany"])[0]
+            result = await agent.get_city_info(city=city, profile=data.get("profile") or state.profile)
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
+    async def _run_career_roi(self, state: AgentState, data: dict) -> dict:
+        """Run CareerROIAgent."""
+        profile = data.get("profile") or state.profile
+        agent_name = "CareerROIAgent"
+        state.active_agents.add(agent_name)
+        await self._broadcast(state.session_id, {"type": "agent_start", "agent": agent_name,
+                                                   "message": "Calculating career ROI for your target countries..."})
+        try:
+            agent = self._get_agent("career_roi")
+            result = await agent.calculate(
+                profile=profile,
+                university_name=data.get("university_name", "Target University"),
+                country=data.get("country") or (profile.get("target_countries") or ["USA"])[0],
+                annual_tuition_usd=data.get("annual_tuition_usd", 25000),
+                program_duration_years=data.get("program_duration_years", 2.0),
+            )
+            state.completed_agents.add(agent_name)
+            state.active_agents.discard(agent_name)
+            await self._broadcast(state.session_id, {"type": "agent_complete", "agent": agent_name,
+                                                       "summary": f"ROI: {result.get('verdict', 'Calculated')}"})
+            return result
+        except Exception:
+            state.active_agents.discard(agent_name)
+            state.failed_agents.add(agent_name)
+            raise
+
     async def _run_full_pipeline(self, state: AgentState, data: dict) -> dict:
         """Run the full autonomous pipeline: profile → match → top SOP."""
         results = {}
@@ -442,41 +661,149 @@ class SupervisorAgent:
     async def chat(self, session_id: str, message: str) -> str:
         """
         Natural language interface to the agent system.
-        Routes user queries to appropriate agents automatically.
+        Routes user queries to appropriate agents and returns clean formatted text.
         """
         state = self.get_session(session_id)
         if not state:
             raise ValueError("Session not found")
 
         state.add_message("user", message)
-
-        # Simple intent detection (can be replaced with LLM-based routing)
         message_lower = message.lower()
 
-        if any(kw in message_lower for kw in ["analyze", "profile", "strengths", "gaps"]):
+        # Intent detection
+        if any(kw in message_lower for kw in ["analyze", "profile", "strengths", "gaps", "gpa", "score"]):
             task = TaskType.ANALYZE_PROFILE
-        elif any(kw in message_lower for kw in ["match", "universities", "find", "recommend"]):
+        elif any(kw in message_lower for kw in ["match", "universities", "find uni", "recommend uni", "shortlist"]):
             task = TaskType.FIND_UNIVERSITIES
-        elif any(kw in message_lower for kw in ["sop", "statement", "write", "essay"]):
+        elif any(kw in message_lower for kw in ["sop", "statement of purpose", "write essay", "motivation letter"]):
             task = TaskType.GENERATE_SOP
-        elif any(kw in message_lower for kw in ["scholarship", "funding", "financial"]):
+        elif any(kw in message_lower for kw in ["scholarship", "funding", "financial aid", "fulbright", "daad", "chevening"]):
             task = TaskType.MATCH_SCHOLARSHIPS
-        elif any(kw in message_lower for kw in ["visa", "permit", "immigration"]):
+        elif any(kw in message_lower for kw in ["visa", "permit", "immigration", "blocked account", "aps", "i-20", "cas"]):
             task = TaskType.VISA_GUIDE
+        elif any(kw in message_lower for kw in ["interview", "mock interview", "prepare interview", "practice"]):
+            task = TaskType.INTERVIEW_PREP
+        elif any(kw in message_lower for kw in ["document", "checklist", "documents required", "what papers"]):
+            task = TaskType.AUDIT_DOCUMENTS
+        elif any(kw in message_lower for kw in ["email", "professor", "faculty", "contact", "outreach"]):
+            task = TaskType.GENERATE_EMAIL
+        elif any(kw in message_lower for kw in ["city", "cost of living", "housing", "rent", "monthly cost", "live in"]):
+            task = TaskType.CITY_LIFE_INFO
+        elif any(kw in message_lower for kw in ["salary", "career", "roi", "return", "job", "income", "worth it"]):
+            task = TaskType.CAREER_ROI
         else:
+            # Helpful fallback with all capabilities listed
             response = (
-                "I can help you with: analyzing your profile, finding matching universities, "
-                "writing SOPs, finding scholarships, visa guidance, and more. "
-                "What would you like to do?"
+                "I'm your StudyAbroad AI Advisor. Here's what I can help with:\n\n"
+                "🎓 **Profile Analysis** — analyze your GPA, test scores, and academic strength\n"
+                "🏛️ **University Matching** — find the best universities for your profile\n"
+                "📝 **SOP Writing** — generate a personalized Statement of Purpose\n"
+                "💰 **Scholarship Search** — find DAAD, Fulbright, Chevening and more\n"
+                "🛂 **Visa Guide** — step-by-step visa requirements by country\n"
+                "📋 **Document Audit** — check what documents you're missing\n"
+                "✉️ **Email Drafting** — write professor outreach or scholarship cover letters\n"
+                "🎤 **Interview Prep** — personalized mock interview questions\n"
+                "🏙️ **City Life** — cost-of-living breakdown for your target city\n"
+                "📈 **Career ROI** — salary and financial return analysis\n\n"
+                "What would you like to work on?"
             )
             state.add_message("assistant", response, agent="Supervisor")
             return response
 
-        result = await self.run_task(session_id, task, {"message": message})
-        response_text = json.dumps(result.get("result", {}), indent=2)[:500] + "..."
+        result = await self.run_task(session_id, task, {"profile": state.profile or {}, "message": message})
 
-        state.add_message("assistant", response_text, agent="Supervisor")
+        # Format clean response based on task type
+        agent_result = result.get("result", {})
+        response_text = self._format_chat_response(task, agent_result, message)
+
+        state.add_message("assistant", response_text, agent=task.value)
         return response_text
+
+    def _format_chat_response(self, task: TaskType, result: dict, original_message: str) -> str:
+        """Convert raw agent result into clean, readable chat response."""
+        if not result or result.get("error"):
+            return f"I encountered an issue processing that request. Please ensure your profile is set up at /profile and try again."
+
+        if task == TaskType.ANALYZE_PROFILE:
+            score = result.get("overall_profile_score") or result.get("overall_score", "N/A")
+            completeness = result.get("profile_completeness_pct", "N/A")
+            strengths = result.get("strengths", [])
+            s_list = "\n".join(f"• {s}" for s in strengths[:3])
+            return f"**Profile Analysis Complete** ✅\n\n📊 Overall Score: **{score}/100** | Profile Completeness: **{completeness}%**\n\n**Strengths:**\n{s_list}\n\nVisit **/profile** for the full analysis with gaps and action plan."
+
+        elif task == TaskType.FIND_UNIVERSITIES:
+            matches = result.get("top_matches", [])
+            if not matches:
+                return "No university matches found. Please complete your profile at /profile first."
+            top3 = matches[:3]
+            lines = []
+            for m in top3:
+                cand = m.get("candidate", m)
+                name = cand.get("name") or cand.get("university_name", "University")
+                score = m.get("overall_score", "N/A")
+                tier = m.get("tier", "Match")
+                lines.append(f"• **{name}** — {score}/100 ({tier})")
+            uni_list = "\n".join(lines)
+            total = result.get("total_matches", len(matches))
+            return f"**Top University Matches** 🏛️\n\n{uni_list}\n\nFound {total} total matches. Visit **/universities** to see all with full details."
+
+        elif task == TaskType.MATCH_SCHOLARSHIPS:
+            schols = result.get("scholarships", [])
+            eligible = result.get("eligible_count", 0)
+            funding = result.get("total_potential_funding_usd", 0)
+            if not schols:
+                return "No scholarships found matching your profile. Complete your profile at /profile for better results."
+            top2 = schols[:2]
+            lines = [f"• **{s['scholarship'].get('name', 'Scholarship')}** — ${s['scholarship'].get('amount_usd', 0):,} ({s['scholarship'].get('country', '')})" for s in top2]
+            return f"**Scholarships Found** 💰\n\n{chr(10).join(lines)}\n\n{eligible} scholarships you're eligible for. Total potential funding: **${funding:,}**. Visit **/dashboard** to see all."
+
+        elif task == TaskType.VISA_GUIDE:
+            countries = result.get("countries", {})
+            if countries:
+                country_name = list(countries.keys())[0]
+                info = countries[country_name]
+            else:
+                info = result
+                country_name = result.get("country", "Target Country")
+            visa_type = info.get("visa_type", "Student Visa")
+            processing = info.get("processing_time", "4-8 weeks")
+            critical_gaps = info.get("profile_gaps", [])
+            gap_note = f"\n\n⚠️ **Critical for you:** {critical_gaps[0].get('note', '')}" if critical_gaps else ""
+            return f"**{country_name} Visa Guide** 🛂\n\n**Visa Type:** {visa_type}\n**Processing Time:** {processing}{gap_note}\n\nFull checklist and document list available at **/dashboard**."
+
+        elif task == TaskType.AUDIT_DOCUMENTS:
+            readiness = result.get("overall_readiness_pct", 0)
+            gaps = result.get("critical_gaps", [])
+            gap_list = "\n".join(f"• {g.get('doc', g.get('item', 'Document'))}" for g in gaps[:3])
+            if gaps:
+                return f"**Document Audit** 📋\n\n✅ Overall Readiness: **{readiness}%**\n\n❌ **Critical Missing:**\n{gap_list}\n\nFull checklist at **/dashboard**."
+            return f"**Document Audit** 📋\n\n✅ Overall Readiness: **{readiness}%** — Looking good! See full checklist at **/dashboard**."
+
+        elif task == TaskType.INTERVIEW_PREP:
+            total = result.get("total_questions", 0)
+            questions = result.get("questions", [])
+            if questions:
+                first_q = questions[0]
+                preview = f"\n\n**Sample Question:**\n_{first_q.get('question', '')}_"
+            else:
+                preview = ""
+            return f"**Interview Prep Ready** 🎤\n\n{total} personalized questions generated.{preview}\n\nFull mock interview at **/dashboard**."
+
+        elif task == TaskType.CAREER_ROI:
+            salary = result.get("avg_starting_salary_usd", 0)
+            payback = result.get("payback_period_years", "N/A")
+            verdict = result.get("verdict", "")
+            roi_10 = result.get("roi_percentage", {}).get("10_years", 0)
+            return f"**Career ROI Analysis** 📈\n\n💵 Avg Starting Salary: **${salary:,}/yr**\n⏱️ Payback Period: **{payback} years**\n📊 10-Year ROI: **{roi_10}%**\n\n_{verdict}_"
+
+        elif task == TaskType.CITY_LIFE_INFO:
+            city = result.get("city", "Your City")
+            monthly_avg = result.get("total_monthly_avg_usd", 0)
+            annual = result.get("annual_estimated_usd", 0)
+            return f"**{city} Cost of Living** 🏙️\n\n💰 Monthly Average: **${monthly_avg:,}** | Annual: **${annual:,}**\n\n{result.get('student_life', '')}\n\nFull breakdown at **/dashboard**."
+
+        # Generic fallback
+        return f"Task completed. Results are available in your dashboard at **/dashboard**."
 
 
 # ─── Global supervisor instance ───────────────────────────────────────────────
