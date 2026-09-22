@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 
 const AGENTS = [
   { icon: "🎓", name: "Profile Analyzer", desc: "Scores your GPA, GRE, IELTS and finds gaps instantly" },
@@ -14,6 +15,54 @@ const AGENTS = [
   { icon: "🏠", name: "Housing Scout", desc: "Finds student housing options near your target university" },
   { icon: "✈️", name: "Pre-Departure Planner", desc: "Checklist, flight booking tips & first-week essentials" },
   { icon: "🤝", name: "Alumni Connector", desc: "Connects you with alumni from your target universities" },
+];
+
+const DESTINATIONS = [
+  {
+    country: "United States",
+    flag: "🇺🇸",
+    img: "/destination-usa.jpg",
+    unis: "MIT, Stanford, Harvard, CMU",
+    tuition: "$35K - $60K/yr",
+    stayBack: "3-Year STEM OPT",
+    tag: "Top Research & Tech",
+  },
+  {
+    country: "United Kingdom",
+    flag: "🇬🇧",
+    img: "/destination-uk.jpg",
+    unis: "Oxford, Cambridge, Imperial, UCL",
+    tuition: "£22K - £38K/yr",
+    stayBack: "2-Year Graduate Visa",
+    tag: "1-Year Master's Degrees",
+  },
+  {
+    country: "Germany",
+    flag: "🇩🇪",
+    img: "/destination-germany.jpg",
+    unis: "TU Munich, Heidelberg, RWTH Aachen",
+    tuition: "€0 - €1,500/yr (Tuition-Free)",
+    stayBack: "18-Month Job Seeker Visa",
+    tag: "High ROI & Engineering",
+  },
+  {
+    country: "Switzerland",
+    flag: "🇨🇭",
+    img: "/destination-switzerland.jpg",
+    unis: "ETH Zurich, EPFL Lausanne",
+    tuition: "CHF 1,600/yr (~Free)",
+    stayBack: "6-Month Post-Study Visa",
+    tag: "World #7 STEM Quality",
+  },
+  {
+    country: "Singapore",
+    flag: "🇸🇬",
+    img: "/destination-singapore.jpg",
+    unis: "NUS, NTU, SMU",
+    tuition: "S$25K - S$45K/yr",
+    stayBack: "1 to 3-Year Pass",
+    tag: "Asian Tech & Finance Hub",
+  },
 ];
 
 const STATS = [
@@ -59,7 +108,7 @@ export default function HomePage() {
         paddingBottom: 110,
         position: "relative",
         overflow: "hidden",
-        backgroundImage: `linear-gradient(180deg, rgba(10,10,15,0.72) 0%, rgba(10,10,15,0.86) 60%, var(--bg-primary) 100%), url('/hero-campus.jpg')`,
+        backgroundImage: `linear-gradient(180deg, rgba(10,10,15,0.74) 0%, rgba(10,10,15,0.88) 60%, var(--bg-primary) 100%), url('/hero-campus.jpg')`,
         backgroundSize: "cover",
         backgroundPosition: "center 30%",
         backgroundRepeat: "no-repeat",
@@ -73,7 +122,7 @@ export default function HomePage() {
         }} />
         <div className="container" style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
           <div style={{ marginBottom: 24 }}>
-            <span className="badge badge-accent">🚀 Production-Grade AI Platform</span>
+            <span className="badge badge-accent">🚀 Autonomous Study Abroad Intelligence</span>
           </div>
           <h1 style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -84,18 +133,18 @@ export default function HomePage() {
             <span className="gradient-text">Study Abroad Advisor</span>
           </h1>
           <p style={{
-            fontSize: 20, color: "var(--text-secondary)", maxWidth: 620,
+            fontSize: 20, color: "var(--text-secondary)", maxWidth: 640,
             margin: "0 auto 40px", lineHeight: 1.7,
           }}>
-            12 specialized AI agents working together to handle every step of your study abroad journey —
-            from profile analysis to visa guidance. No consultants. No fees.
+            12 specialized AI agents working together to handle every step of your international education journey —
+            from profile evaluation to university matching, SOP drafting, and scholarship hunter.
           </p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/profile" className="btn btn-primary btn-lg">
-              ✨ Analyze My Profile — Free
+              ✨ Evaluate My Profile Free
             </Link>
             <Link href="/universities" className="btn btn-outline btn-lg">
-              🏛️ Browse Universities
+              🏛️ Explore Top Universities
             </Link>
           </div>
 
@@ -116,12 +165,143 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Featured Study Abroad Destinations (Real Photography) ── */}
+      <section style={{ padding: "90px 0", borderTop: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
+        <div className="container">
+          <div style={{ textAlign: "center", marginBottom: 50 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-light)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>
+              Global Higher Education Hubs
+            </div>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 38, fontWeight: 800, marginBottom: 12 }}>
+              Explore Top Study Destinations
+            </h2>
+            <p style={{ color: "var(--text-secondary)", fontSize: 16, maxWidth: 600, margin: "0 auto" }}>
+              Tailored admission requirements, verified tuition ranges, and post-study work rights for every country.
+            </p>
+          </div>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 24,
+          }}>
+            {DESTINATIONS.map((dest) => (
+              <div key={dest.country} className="card" style={{ padding: 0, overflow: "hidden", border: "1px solid var(--border)" }}>
+                <div style={{ position: "relative", height: 180, width: "100%" }}>
+                  <img
+                    src={dest.img}
+                    alt={dest.country}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                  <div style={{
+                    position: "absolute", top: 12, left: 12,
+                    background: "rgba(10,10,15,0.85)", backdropFilter: "blur(8px)",
+                    borderRadius: "var(--radius-sm)", padding: "4px 10px", fontSize: 12, fontWeight: 700,
+                    display: "flex", alignItems: "center", gap: 6,
+                  }}>
+                    <span>{dest.flag}</span> {dest.country}
+                  </div>
+                  <div style={{
+                    position: "absolute", bottom: 12, right: 12,
+                    background: "rgba(99,102,241,0.9)", color: "#fff",
+                    borderRadius: "var(--radius-sm)", padding: "3px 8px", fontSize: 11, fontWeight: 600,
+                  }}>
+                    {dest.tag}
+                  </div>
+                </div>
+                <div style={{ padding: "20px 22px" }}>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 6 }}>
+                    Top Hubs: <strong style={{ color: "var(--text-primary)" }}>{dest.unis}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, borderTop: "1px solid var(--border)", paddingTop: 12, marginTop: 12 }}>
+                    <div>
+                      <span style={{ color: "var(--text-muted)", fontSize: 11, display: "block" }}>Avg Tuition</span>
+                      <strong>{dest.tuition}</strong>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span style={{ color: "var(--text-muted)", fontSize: 11, display: "block" }}>Work Rights</span>
+                      <strong style={{ color: "var(--accent-light)" }}>{dest.stayBack}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Library & Student Experience Spotlight (Real Photography) ── */}
+      <section style={{ padding: "90px 0", borderTop: "1px solid var(--border)" }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-light)", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 10 }}>
+                Autonomous Academic Excellence
+              </div>
+              <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 36, fontWeight: 800, lineHeight: 1.2, marginBottom: 20 }}>
+                World-Class Admissions Advisory Without Consultant Fees
+              </h2>
+              <p style={{ color: "var(--text-secondary)", fontSize: 16, lineHeight: 1.7, marginBottom: 24 }}>
+                Traditional study abroad agencies charge thousands of dollars for manual university recommendations and generic SOP templates. StudyAbroad.AI uses cutting-edge vector search and local intelligence to tailor your complete application package in minutes.
+              </p>
+              <div style={{ display: "grid", gap: 14, marginBottom: 30 }}>
+                {[
+                  { title: "Precision Match Scoring", desc: "Analyzes GPA scales, GRE percentiles, and language benchmarks against historical applicant pools." },
+                  { title: "Personalized SOP Writing Engine", desc: "Crafts bespoke essays linking your projects and research directly to faculty labs and course syllabi." },
+                  { title: "Automated Scholarship Tracker", desc: "Scrapes global university and government endowment funds worth up to 100% full tuition coverage." },
+                ].map((item) => (
+                  <div key={item.title} style={{ display: "flex", gap: 14 }}>
+                    <span style={{ color: "#10b981", fontSize: 18, fontWeight: 800 }}>✓</span>
+                    <div>
+                      <h4 style={{ fontSize: 15, fontWeight: 700, marginBottom: 2 }}>{item.title}</h4>
+                      <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link href="/profile" className="btn btn-primary">
+                Build My Action Plan →
+              </Link>
+            </div>
+
+            <div style={{ position: "relative" }}>
+              <div style={{
+                borderRadius: "var(--radius-lg)",
+                overflow: "hidden",
+                border: "1px solid var(--border)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+              }}>
+                <img
+                  src="/library-study.jpg"
+                  alt="Students studying in historic collegiate university library"
+                  style={{ width: "100%", height: 380, objectFit: "cover" }}
+                />
+              </div>
+              {/* Floating Badge */}
+              <div style={{
+                position: "absolute", bottom: -20, left: 24,
+                background: "rgba(18,18,26,0.95)", backdropFilter: "blur(16px)",
+                border: "1px solid var(--border-accent)", borderRadius: "var(--radius)",
+                padding: "16px 20px", display: "flex", alignItems: "center", gap: 14,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+              }}>
+                <div style={{ fontSize: 32 }}>🏛️</div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800 }}>10,000+ Global Programs</div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Indexed across 30+ countries</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── 12 Agents Grid ── */}
-      <section style={{ padding: "80px 0", borderTop: "1px solid var(--border)" }}>
+      <section style={{ padding: "80px 0", borderTop: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 40, fontWeight: 800, marginBottom: 12 }}>
-              12 AI Agents,{" "}
+              12 Specialized AI Agents,{" "}
               <span className="gradient-text">One Mission</span>
             </h2>
             <p style={{ color: "var(--text-secondary)", fontSize: 18 }}>
@@ -171,6 +351,38 @@ export default function HomePage() {
                 <p style={{ color: "var(--text-secondary)", fontSize: 15, lineHeight: 1.7 }}>{step.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Student Success / Outcome Showcase ── */}
+      <section style={{ padding: "80px 0", borderTop: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
+        <div className="container">
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center",
+            background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.05))",
+            borderRadius: "var(--radius-lg)", border: "1px solid var(--border-accent)",
+            padding: "40px", overflow: "hidden",
+          }}>
+            <div style={{ borderRadius: "var(--radius)", overflow: "hidden" }}>
+              <img
+                src="/graduation-success.jpg"
+                alt="International graduate students celebrating academic success"
+                style={{ width: "100%", height: 280, objectFit: "cover" }}
+              />
+            </div>
+            <div>
+              <span className="badge badge-success" style={{ marginBottom: 12 }}>🎓 Global Success</span>
+              <h3 style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: 12 }}>
+                Empowering Students Worldwide to Reach Top Global Universities
+              </h3>
+              <p style={{ color: "var(--text-secondary)", fontSize: 15, lineHeight: 1.7, marginBottom: 20 }}>
+                Whether you are aiming for tuition-free master&apos;s degrees in Germany, Ivy League research programs in the USA, or high-scholarship opportunities in Switzerland and Singapore, our AI advisor helps you build a winning application package.
+              </p>
+              <Link href="/profile" className="btn btn-primary">
+                Start Your Free Profile Evaluation →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -229,7 +441,8 @@ export default function HomePage() {
           <div style={{ display: "flex", gap: 16 }}>
             <Link href="/dashboard" style={{ color: "var(--text-muted)", fontSize: 14, textDecoration: "none" }}>Dashboard</Link>
             <Link href="/universities" style={{ color: "var(--text-muted)", fontSize: 14, textDecoration: "none" }}>Universities</Link>
-            <Link href="/profile" style={{ color: "var(--text-muted)", fontSize: 14, textDecoration: "none" }}>Profile</Link>
+            <Link href="/sop" style={{ color: "var(--text-muted)", fontSize: 14, textDecoration: "none" }}>SOP Generator</Link>
+            <Link href="/api/docs" style={{ color: "var(--text-muted)", fontSize: 14, textDecoration: "none" }}>API Docs</Link>
           </div>
         </div>
       </footer>
