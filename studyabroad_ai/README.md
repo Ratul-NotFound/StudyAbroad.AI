@@ -27,17 +27,17 @@
 | # | Agent | Status | Own Tool Used |
 |---|---|---|---|
 | 1 | UniversityScraperAgent | ✅ Built | Playwright + LLM |
-| 2 | ScholarshipScraperAgent | 🔨 Phase 2 | Playwright + BS4 |
+| 2 | ScholarshipScraperAgent | ✅ Built | Playwright + BS4 |
 | 3 | ProfileAnalyzerAgent | ✅ Built | LLM + sentence-transformers |
 | 4 | UniversityMatchAgent | ✅ Built | FAISS + scoring algorithm |
 | 5 | SOPWriterAgent | ✅ Built | LLM (replaces $200-500 consultant) |
-| 6 | ScholarshipMatchAgent | 🔨 Phase 3 | FAISS + deadline filter |
-| 7 | DocumentAuditAgent | 🔨 Phase 3 | Tesseract OCR + LLM |
-| 8 | EmailDraftAgent | 🔨 Phase 3 | LLM (replaces cold-email tools) |
-| 9 | VisaGuideAgent | 🔨 Phase 3 | Playwright + LLM |
-| 10 | InterviewCoachAgent | 🔨 Phase 4 | LLM (replaces $100/session coaching) |
-| 11 | CityLifeAgent | 🔨 Phase 4 | Playwright + data scrapers |
-| 12 | CareerROIAgent | 🔨 Phase 4 | LLM + LinkedIn scraper |
+| 6 | ScholarshipMatchAgent | ✅ Built | FAISS + deadline filter |
+| 7 | DocumentAuditAgent | ✅ Built | Tesseract OCR + LLM |
+| 8 | EmailDraftAgent | ✅ Built | LLM (replaces cold-email tools) |
+| 9 | VisaGuideAgent | ✅ Built | Playwright + LLM |
+| 10 | InterviewCoachAgent | ✅ Built | LLM (replaces $100/session coaching) |
+| 11 | CityLifeAgent | ✅ Built | Playwright + data scrapers |
+| 12 | CareerROIAgent | ✅ Built | LLM + LinkedIn scraper |
 
 ---
 
