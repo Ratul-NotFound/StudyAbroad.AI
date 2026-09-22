@@ -253,3 +253,18 @@ class VectorStoreManager:
 
 # ─── Global vector store instance ─────────────────────────────────────────────
 vector_store = VectorStoreManager()
+
+
+def get_vector_store_status() -> dict:
+    """Returns current vector store status for health checks."""
+    try:
+        stats = vector_store.stats_all()
+        total_vectors = sum(s.get("total_vectors", 0) for s in stats.values())
+        return {
+            "provider": "faiss",
+            "stores": len(stats),
+            "total_vectors": total_vectors,
+            "index_path": settings.vector_index_path,
+        }
+    except Exception as e:
+        return {"provider": "faiss", "error": str(e)}

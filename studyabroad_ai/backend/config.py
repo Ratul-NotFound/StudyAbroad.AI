@@ -119,6 +119,7 @@ class Settings(BaseSettings):
 
     # ── Frontend ──────────────────────────────────────────────────────────────
     frontend_url: str = "http://localhost:3000"
+    scraper_service_url: str = "http://localhost:3001"
 
     # ── Logging ───────────────────────────────────────────────────────────────
     log_level: str = "INFO"

@@ -172,6 +172,12 @@ async def root():
     }
 
 
+@app.get("/health", tags=["Health"], include_in_schema=False)
+async def health_simple():
+    """Simple health check for Docker/nginx health probes."""
+    return {"status": "ok", "version": settings.app_version}
+
+
 @app.get("/api/health", tags=["Health"])
 async def health():
     """System health check — shows which free LLM APIs are configured."""
