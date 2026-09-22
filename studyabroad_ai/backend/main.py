@@ -501,6 +501,166 @@ async def v1_scholarships(country: Optional[str] = None):
     return {"scholarships": results, "count": len(results)}
 
 
+# ─── Scholarship Matching ─────────────────────────────────────────────────────
+
+@app.post("/api/v1/scholarships/match", tags=["Scholarships"])
+async def v1_scholarship_match(payload: dict):
+    """Match scholarships to a student profile using FAISS + eligibility scoring."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    result = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.MATCH_SCHOLARSHIPS,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "top_n": payload.get("top_n", 10),
+            "country_filter": payload.get("country_filter"),
+        }
+    )
+    return result.get("result", result)
+
+
+# ─── Document Audit ───────────────────────────────────────────────────────────
+
+@app.post("/api/v1/documents/audit", tags=["Documents"])
+async def v1_document_audit(payload: dict):
+    """Audit document readiness for target countries with per-document checklist."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    result = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.AUDIT_DOCUMENTS,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "target_countries": payload.get("target_countries"),
+            "existing_documents": payload.get("existing_documents", []),
+        }
+    )
+    return result.get("result", result)
+
+
+# ─── Email Drafting ───────────────────────────────────────────────────────────
+
+@app.post("/api/v1/email/draft", tags=["Email"])
+async def v1_email_draft(payload: dict):
+    """Draft personalized professor outreach email or scholarship cover letter."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    result = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.GENERATE_EMAIL,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "email_type": payload.get("email_type", "professor"),  # professor | scholarship | inquiry
+            "professor_name": payload.get("professor_name", "Professor"),
+            "professor_research": payload.get("professor_research", "machine learning"),
+            "university_name": payload.get("university_name", "Target University"),
+            "program_name": payload.get("program_name", "Graduate Program"),
+            "scholarship_name": payload.get("scholarship_name", ""),
+            "country": payload.get("country", ""),
+            "word_limit": payload.get("word_limit", 500),
+        }
+    )
+    return result.get("result", result)
+
+
+# ─── Visa Guide ───────────────────────────────────────────────────────────────
+
+@app.get("/api/v1/visa/guide/{country}", tags=["Visa"])
+async def v1_visa_guide_get(country: str):
+    """Get student visa guide for a specific country (no profile needed)."""
+    from backend.agents.visa_guide import visa_guide_agent
+    return await visa_guide_agent.guide(country=country)
+
+
+@app.post("/api/v1/visa/guide", tags=["Visa"])
+async def v1_visa_guide_post(payload: dict):
+    """Get personalized student visa guide for target countries with profile gap analysis."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    result = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.VISA_GUIDE,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "countries": payload.get("countries") or payload.get("target_countries", ["Germany"]),
+        }
+    )
+    return result.get("result", result)
+
+
+@app.get("/api/v1/visa/countries", tags=["Visa"])
+async def v1_visa_countries():
+    """List all countries with available visa guides."""
+    from backend.agents.visa_guide import visa_guide_agent
+    return {"countries": visa_guide_agent.list_countries()}
+
+
+# ─── Interview Coach ──────────────────────────────────────────────────────────
+
+@app.post("/api/v1/interview/questions", tags=["Interview"])
+async def v1_interview_questions(payload: dict):
+    """Generate personalized interview questions with model answers."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    result = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.INTERVIEW_PREP,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "university_name": payload.get("university_name", "Target University"),
+            "program_name": payload.get("program_name", "Graduate Program"),
+            "interview_type": payload.get("interview_type", "admission"),  # admission | scholarship | visa
+            "num_questions": payload.get("num_questions", 10),
+        }
+    )
+    return result.get("result", result)
+
+
+@app.post("/api/v1/interview/score", tags=["Interview"])
+async def v1_interview_score(payload: dict):
+    """Score a practice answer and give detailed feedback."""
+    from backend.agents.interview_coach import interview_coach_agent
+    return await interview_coach_agent.score_answer(
+        question=payload.get("question", ""),
+        answer=payload.get("answer", ""),
+        profile=payload.get("profile", {}),
+        university_name=payload.get("university_name", "Target University"),
+    )
+
+
+# ─── City Life ────────────────────────────────────────────────────────────────
+
+@app.get("/api/v1/city/{city_name}", tags=["City"])
+async def v1_city_get(city_name: str):
+    """Get cost-of-living and lifestyle breakdown for a city."""
+    from backend.agents.city_life import city_life_agent
+    return await city_life_agent.get_city_info(city=city_name)
+
+
+@app.post("/api/v1/city/compare", tags=["City"])
+async def v1_city_compare(payload: dict):
+    """Compare cost-of-living across multiple cities."""
+    from backend.agents.city_life import city_life_agent
+    cities = payload.get("cities", ["Munich", "Toronto", "Singapore"])
+    return await city_life_agent.compare_cities(cities=cities, profile=payload.get("profile", {}))
+
+
+# ─── Career ROI ───────────────────────────────────────────────────────────────
+
+@app.post("/api/v1/career/roi", tags=["Career"])
+async def v1_career_roi(payload: dict):
+    """Calculate financial ROI, salary projection, and payback period for study abroad."""
+    session_id = get_or_create_session(payload.get("session_id"))
+    result = await supervisor.run_task(
+        session_id=session_id,
+        task_type=TaskType.CAREER_ROI,
+        task_data={
+            "profile": payload.get("profile", {}),
+            "university_name": payload.get("university_name", "Target University"),
+            "country": payload.get("country", ""),
+            "annual_tuition_usd": payload.get("annual_tuition_usd", 25000),
+            "program_duration_years": payload.get("program_duration_years", 2.0),
+        }
+    )
+    return result.get("result", result)
+
+
 # ─── Chat Interface ───────────────────────────────────────────────────────────
 
 @app.post("/api/chat", tags=["Chat"])
@@ -508,9 +668,14 @@ async def chat(request: ChatRequest):
     """Natural language chat interface routed to appropriate agents."""
     state = supervisor.get_session(request.session_id)
     if not state:
-        raise HTTPException(status_code=404, detail="Session not found. Create a session first.")
-    response = await supervisor.chat(request.session_id, request.message)
-    return {"response": response, "session_id": request.session_id}
+        # Auto-create session so chatbot works without explicit session creation
+        session_id = supervisor.create_session(user_id=0)
+        state = supervisor.get_session(session_id)
+        request_session_id = session_id
+    else:
+        request_session_id = request.session_id
+    response = await supervisor.chat(request_session_id, request.message)
+    return {"response": response, "session_id": request_session_id}
 
 
 # ─── WebSocket (Real-time Agent Updates) ─────────────────────────────────────
