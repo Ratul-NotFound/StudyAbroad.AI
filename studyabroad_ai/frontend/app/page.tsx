@@ -54,15 +54,24 @@ export default function HomePage() {
       </nav>
 
       {/* ── Hero ── */}
-      <section style={{ paddingTop: 160, paddingBottom: 100, position: "relative", overflow: "hidden" }}>
-        {/* Background glow */}
+      <section style={{
+        paddingTop: 170,
+        paddingBottom: 110,
+        position: "relative",
+        overflow: "hidden",
+        backgroundImage: `linear-gradient(180deg, rgba(10,10,15,0.72) 0%, rgba(10,10,15,0.86) 60%, var(--bg-primary) 100%), url('/hero-campus.jpg')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center 30%",
+        backgroundRepeat: "no-repeat",
+      }}>
+        {/* Ambient subtle glow */}
         <div style={{
-          position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)",
-          width: 700, height: 700, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)",
+          position: "absolute", top: "25%", left: "50%", transform: "translate(-50%,-50%)",
+          width: 800, height: 800, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        <div className="container" style={{ textAlign: "center", position: "relative" }}>
+        <div className="container" style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
           <div style={{ marginBottom: 24 }}>
             <span className="badge badge-accent">🚀 Production-Grade AI Platform</span>
           </div>
