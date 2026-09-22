@@ -71,12 +71,29 @@ class GroqClient:
     ]
 
     def __init__(self):
-        self.api_key = settings.groq_api_key
+        # Key pool: collect all configured Groq keys for round-robin rotation
+        self._key_pool = settings.all_groq_keys
+        self._key_index = 0  # Current key index
+        self.api_key = self._key_pool[0] if self._key_pool else ""
         self.model = settings.groq_model
         self.base_url = self.BASE_URL
 
+    def _next_key(self) -> str:
+        """Round-robin to next key in pool."""
+        if not self._key_pool:
+            return ""
+        key = self._key_pool[self._key_index % len(self._key_pool)]
+        self._key_index = (self._key_index + 1) % len(self._key_pool)
+        return key
+
+    def _active_key(self) -> str:
+        """Get the current active key without advancing."""
+        if not self._key_pool:
+            return ""
+        return self._key_pool[self._key_index % len(self._key_pool)]
+
     async def is_available(self) -> bool:
-        return bool(self.api_key and self.api_key not in ("", "your-groq-key-here"))
+        return len(self._key_pool) > 0
 
     @retry(
         stop=stop_after_attempt(3),
@@ -90,14 +107,10 @@ class GroqClient:
         messages.append({"role": "user", "content": prompt})
         return await self.chat(messages, temperature, max_tokens)
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10)
-    )
     async def chat(self, messages: list[dict], temperature: float = 0.7,
                    max_tokens: int = 4096) -> LLMResponse:
         if not await self.is_available():
-            raise ValueError("Groq API key not configured.")
+            raise ValueError("Groq API key not configured. Get a free key at https://console.groq.com")
 
         payload = {
             "model": self.model,
@@ -107,29 +120,47 @@ class GroqClient:
             "stream": False,
         }
 
-        async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
-            response = await client.post(
-                f"{self.base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload
-            )
-            response.raise_for_status()
-            data = response.json()
+        # Try all keys in pool before giving up (handles 429 rate limits gracefully)
+        last_error = None
+        for attempt in range(len(self._key_pool) + 1):
+            key = self._next_key()
+            try:
+                async with httpx.AsyncClient(timeout=settings.llm_timeout_seconds) as client:
+                    response = await client.post(
+                        f"{self.base_url}/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {key}",
+                            "Content-Type": "application/json",
+                        },
+                        json=payload
+                    )
+                    if response.status_code == 429:
+                        # Rate limit hit on this key — try next key
+                        logger.warning(f"[Groq] Key #{attempt+1} hit rate limit (429). Switching to next key.")
+                        last_error = ValueError(f"Groq rate limit on key {attempt+1}")
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
 
-        content = data["choices"][0]["message"]["content"]
-        tokens = data.get("usage", {}).get("total_tokens", 0)
+                content = data["choices"][0]["message"]["content"]
+                tokens = data.get("usage", {}).get("total_tokens", 0)
 
-        return LLMResponse(
-            content=content,
-            model=self.model,
-            tool_used="groq",
-            used_fallback=False,
-            tokens_used=tokens,
-            cost_usd=0.0  # Groq is FREE
-        )
+                return LLMResponse(
+                    content=content,
+                    model=self.model,
+                    tool_used=f"groq (key pool: {len(self._key_pool)} keys)",
+                    used_fallback=False,
+                    tokens_used=tokens,
+                    cost_usd=0.0  # Groq is FREE
+                )
+            except (httpx.HTTPStatusError, httpx.RequestError) as e:
+                if hasattr(e, 'response') and getattr(e.response, 'status_code', 0) == 429:
+                    logger.warning(f"[Groq] Key #{attempt+1} rate limited. Trying next.")
+                    last_error = e
+                    continue
+                raise
+
+        raise last_error or ValueError("All Groq keys exhausted")
 
 
 # ─── Gemini Client (FREE tier — Google) ──────────────────────────────────────
