@@ -448,6 +448,25 @@ class LLMRouter:
             f"  3. OpenRouter: https://openrouter.ai → set OPENROUTER_API_KEY"
         )
 
+    async def complete(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: int = 4096,
+        critical: bool = False,
+        task_name: str = "unknown"
+    ) -> LLMResponse:
+        """Alias for generate(). Agents that call llm.complete() are routed here."""
+        return await self.generate(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            critical=critical,
+            task_name=task_name,
+        )
+
     async def chat(
         self,
         messages: list[dict],

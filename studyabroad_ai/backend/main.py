@@ -334,11 +334,12 @@ async def full_pipeline(request: AnalyzeProfileRequest):
 
 # ─── Data Scraping ────────────────────────────────────────────────────────────
 
-@app.post("/api/scrape/universities", tags=["Data"])
-async def scrape_universities(
-    countries: Optional[list[str]] = None,
+class ScrapeRequest(BaseModel):
+    countries: Optional[list[str]] = None
     limit_per_country: Optional[int] = 3
-):
+
+@app.post("/api/scrape/universities", tags=["Data"])
+async def scrape_universities(payload: ScrapeRequest = ScrapeRequest()):
     """
     Trigger UniversityScraperAgent to populate university database.
     Tool used: Playwright (own, free). Takes ~5-30 min for full run.
@@ -348,12 +349,50 @@ async def scrape_universities(
     asyncio.create_task(supervisor.run_task(
         session_id=session_id,
         task_type=TaskType.SCRAPE_UNIVERSITIES,
-        task_data={"countries": countries, "limit_per_country": limit_per_country}
+        task_data={"countries": payload.countries, "limit_per_country": payload.limit_per_country}
     ))
     return {
         "message": "University scraping started in background",
         "session_id": session_id,
         "monitor_ws": f"ws://localhost:{settings.api_port}/ws/{session_id}"
+    }
+
+
+# ─── Admin Stats ──────────────────────────────────────────────────────────────
+
+@app.get("/api/admin/stats", tags=["Admin"])
+async def admin_stats():
+    """Aggregated admin dashboard stats — all agents, LLM usage, and vector store info."""
+    from backend.tools.vector_store import vector_store
+    from backend.tools.llm import llm
+
+    uni_stats = vector_store.universities.stats()
+    sch_stats = vector_store.scholarships.stats()
+
+    return {
+        "status": "operational",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "agents": {
+            "total": 12,
+            "names": [
+                "UniversityScraperAgent", "ScholarshipScraperAgent", "ProfileAnalyzerAgent",
+                "UniversityMatchAgent", "SOPWriterAgent", "ScholarshipMatchAgent",
+                "DocumentAuditAgent", "EmailDraftAgent", "VisaGuideAgent",
+                "InterviewCoachAgent", "CityLifeAgent", "CareerROIAgent"
+            ]
+        },
+        "llm_usage": llm.usage_stats(),
+        "vector_store": {
+            "universities": uni_stats,
+            "scholarships": sch_stats,
+        },
+        "sessions_active": len(supervisor.sessions),
+        "llm_pool": {
+            "groq_keys": len(settings.all_groq_keys),
+            "groq_configured": len(settings.all_groq_keys) > 0,
+            "gemini_configured": bool(settings.gemini_api_key),
+            "openrouter_configured": bool(settings.openrouter_api_key),
+        }
     }
 
 

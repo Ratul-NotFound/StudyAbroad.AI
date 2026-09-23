@@ -17,6 +17,7 @@ import {
   Calendar,
   Folder,
   User,
+  Settings,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -164,8 +165,30 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Right Tools: Theme Switcher & Mobile Menu */}
+        {/* Right Tools: Admin, Theme Switcher & Mobile Menu */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          {/* Admin Panel Link */}
+          <Link
+            href="/admin"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              padding: "6px 12px",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: pathname.startsWith("/admin") ? "#A78BFA" : "#7C3AED",
+              textDecoration: "none",
+              borderRadius: "var(--radius-sm)",
+              background: pathname.startsWith("/admin") ? "rgba(124,58,237,0.15)" : "rgba(124,58,237,0.08)",
+              border: "1px solid rgba(124,58,237,0.3)",
+              transition: "all 0.15s ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <Settings size={13} />
+            <span>Admin</span>
+          </Link>
           <ThemeToggle />
 
           {/* Mobile Drawer Trigger */}
@@ -301,7 +324,20 @@ export function Navbar() {
                     })}
                   </div>
 
-                  <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "16px" }}>
+                  <div style={{ marginTop: "auto", borderTop: "1px solid var(--border)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: 8 }}>
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "10px",
+                        padding: "10px 14px", borderRadius: "var(--radius)",
+                        color: "#A78BFA", textDecoration: "none", fontSize: "14px", fontWeight: 600,
+                        background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.3)",
+                      }}
+                    >
+                      <Settings size={16} />
+                      <span>Admin Panel</span>
+                    </Link>
                     <Link
                       href="/profile"
                       onClick={() => setMobileMenuOpen(false)}
